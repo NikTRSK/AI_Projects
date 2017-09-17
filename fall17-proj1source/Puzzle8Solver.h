@@ -4,5 +4,6 @@
 #include <string>
 
 void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions);
+double CalculateHeuristic(double w, int g, int h);
 
 #endif

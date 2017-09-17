@@ -5,7 +5,7 @@
 #include "Puzzle8State.h"
 
 // Implements a hash-table for the Puzzle8State class.
-
+#include <iostream>
 class Puzzle8StateManager {
 public:
 	Puzzle8StateManager () {next_id = 0;}
