@@ -2,8 +2,10 @@
 #define PUZZLE_8_SOLVER_H
 
 #include <string>
+#include <set>
 
 void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions);
 double CalculateHeuristic(double w, int g, int h);
+bool IsVisited(int stateID, std::set<int> & set);
 
 #endif
