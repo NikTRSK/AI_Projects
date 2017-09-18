@@ -4,7 +4,7 @@
 #include "Puzzle8PQ.h"
 #include <iostream>
 #include <string>
-#include <memory>
+// #include <memory>
 
 using namespace std;
 
@@ -18,13 +18,13 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 
 	Puzzle8StateManager stateManager;
 	Puzzle8PQ pq; // Init pq
-	std::vector<std::unique_ptr<Puzzle8State>> generatedStates;
+	std::vector<Puzzle8State> generatedStates;
 
 	Puzzle8State start(puzzle);
 	
 	double fVal = 0;//CalculateHeuristic(w, );
 	pq.push(PQElement(stateManager.GenerateState(start), fVal));
-	generatedStates.push_back(std::make_unique<Puzzle8State>(start));
+	generatedStates.push_back(start);
 	int g = 0;
 	while(!pq.empty()) {
 		PQElement curr = pq.top();
