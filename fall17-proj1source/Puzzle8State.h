@@ -173,7 +173,7 @@ public:
 		return fValue;
 	}
 
-	void SetFValue(int f) {
+	void SetFValue(double f) {
 		fValue = f;
 	}
 
