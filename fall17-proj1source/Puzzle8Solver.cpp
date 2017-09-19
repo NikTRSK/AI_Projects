@@ -1,93 +1,135 @@
 #include "Puzzle8Solver.h"
-#include "Tile.h"
+#include <vector>
+#include <unordered_map>
+#include <set>
+#include "Puzzle8State.h"
 #include "Puzzle8StateManager.h"
 #include "Puzzle8PQ.h"
-#include <iostream>
-// #include <string>
-// #include <set>
 
 using namespace std;
 
 void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
-	// cost = 0;
-	// expansions = 0;
+	cost = 0;
+	expansions = 0;
 
-	Puzzle8State goalState("012345678");
-	// TODO
-
-
+	Puzzle8State goalState ("012345678");
+	std::unordered_map<char, Tile> goalStateLocations;
+	for (const char & c: goalState.GetLinearizedForm()) {
+		Tile gt = goalState.FindTile(c);
+		goalStateLocations.insert({c, gt});
+	}
+	Puzzle8State startState(puzzle);
 	Puzzle8StateManager stateManager;
-	Puzzle8PQ pq; // Init pq
-	std::vector<Puzzle8State> generatedStates;
+	Puzzle8PQ pq;
 	std::set<int> closedList;
-
-	Puzzle8State start(puzzle);
+	std::vector<Puzzle8State> generatedStates;
 	
-	double fVal = 0;//CalculateHeuristic(w, );
-	pq.push(PQElement(stateManager.GenerateState(start), fVal));
-	generatedStates.push_back(start);
-	int g = 0;
+	/* Add initial state to the pq and the generatedStates */
+	int stateID = stateManager.GenerateState(startState);
+
+	int h = startState.CaclucateDistance(goalStateLocations);
+	startState.SetG(0);
+	double f = CalculateHeuristic(w, 0, h);
+	startState.SetF(f);
+
+	pq.push(PQElement(stateID, f));
+	generatedStates.push_back(startState);
+
 	while(!pq.empty()) {
 		PQElement curr = pq.top();
-		std::cout << "Next state to expand is " << curr.id << " with f-value " << curr.f << ",Size: " << generatedStates.size() << std::endl;
+		// std::cout << "Next state to expand is " << curr.id << " with f-value " << curr.f << ",Size: " << generatedStates.size() << std::endl;
 		pq.pop();
-		++expansions;
 
 		// Get current state
 		Puzzle8State currState = generatedStates[curr.id];
-		// currState.MarkVisited();
+		// currState.Print();
+		if (IsVisited(curr.id, closedList)) continue;
+
+		// Add to closed set
 		closedList.insert(curr.id);
-		if (currState.GetLinearizedForm() == goalState.GetLinearizedForm()) {
-			std::cout << "FOUND RESULT\n";
-			cost = curr.f;
-			return;
-		}
-
-		// // Get goal tile from current state
-		Tile emptyTile = currState.GetEmptyTile();
-		
-		// std::cout << "KEY: " << currState.GetKey() << std::endl;
-		currState.Print();
-
-		// Get all neigbors of current state
-		std::unordered_map<std::string, int> neighbors = currState.GetNeighbors(goalState);
-
-		/* Check all neighbors */
-		// Puzzle8State n;
-		++g;
-		for (const auto& neighbor : neighbors) {
-			// Calculate heuristic for neigbour
-			Puzzle8State neighborState(neighbor.first);
-			int neighborStateID = stateManager.GetStateId(neighborState);
+		++expansions;
+		/* Explore all neighbors */
+		std::vector<std::string> neighbors = currState.GetNeighbors();
+		for (const auto & n : neighbors) {
+			Puzzle8State neighborState(n);
+			/* If key generated get state from generated States */
 			if (stateManager.IsGenerated(neighborState)) {
-				neighborState = generatedStates[neighborStateID];
-			} else {
-				neighborStateID = stateManager.GenerateState(neighborState);
+				stateID = stateManager.GetStateId(neighborState);
+				neighborState = generatedStates[stateID];
+			}
+			/* Otherwise generate key and add to set */
+			else {
+				stateID = stateManager.GenerateState(neighborState);
+				generatedStates.push_back(neighborState);
 			}
 			
-			// std::cout << "Negihbor Key: " << neighborStateID << ", visited: " << IsVisited(neighborStateID, closedList) << "\n";
-			// std::cout << neighbor.first << ", H: " << neighbor.second << std::endl;
-			// neighborState.Print();
+			if (generatedStates[stateID].GetKey() == goalState.GetKey()) {
+				std:: cout << "FOUND RESULT\n";
+				generatedStates[stateID].Print();
+				cost = curr.f;
+				return;
+			}
+			/* Calculate heuristic */
+			int h = generatedStates[stateID].CaclucateDistance(goalStateLocations);
+			generatedStates[stateID].SetG(currState.GetG() + 1);
+			double f = CalculateHeuristic(w, generatedStates[stateID].GetG(), h);
 
-			double f = CalculateHeuristic(w, g, neighbor.second);
-			if (!IsVisited(neighborStateID, closedList) || f < neighborState.GetFValue()) {
-				neighborState.SetFValue(f);
-				// if (!IsVisited(neighborStateID, closedList))
-					generatedStates.push_back(neighborState); // Ugh we don't need to add it again to the vector
-				pq.push(PQElement(neighborStateID, f));
+			if (!IsVisited(stateID, closedList) || f < generatedStates[stateID].GetF()) {
+				generatedStates[stateID].SetF(f);
+				pq.push(PQElement(stateID, f));
 			}
 		}
 	}
 }
 
 double CalculateHeuristic(double w, int g, int h) {
-	/* h(s) = dist(# rows curr => goal) + dist(# cols curr => goal) */
-	// double h;
 	double f = g + w * h;
-	// std::cout << "CALC H: " << h << ", G: " << g <<  ", F: " << f << "\n";
 	return f;
 }
 
-bool IsVisited(int stateID, std::set<int> & set) {
+bool IsVisited(int stateID, const std::set<int> & set) {
 	return set.find(stateID) != set.end();
+}
+
+/* Test functions */
+void TestGetNeighbors() {
+
+	Tile t(5, 5);
+	std::vector<Tile> v;
+	v.push_back(t);
+	
+	Tile &b = v[0];
+	
+	b.row = 10;
+
+	std::cout << v[0].row << ", " << v[0].col << "\n";
+	std::cout << b.row << ", " << b.col << "\n";
+	std::cout << t.row << ", " << t.col << "\n";
+// your code goes here
+return;
+	
+
+	std::cout << "====TEST GET NEIGHBORS\n";
+	Puzzle8State goalState("012345678");
+	std::vector<std::string> neighbors = goalState.GetNeighbors();
+	for (std::string n : neighbors) {
+		Puzzle8State ns(n);
+		ns.Print();
+	}
+
+	std::cout << "\nFOR 876543210\n";
+	Puzzle8State startState("876543210");
+	neighbors = startState.GetNeighbors();
+	for (std::string n : neighbors) {
+		Puzzle8State ns(n);
+		ns.Print();
+	}
+
+	std::cout << "\nFOR 421305678\n";
+	Puzzle8State midState("421305678");
+	neighbors = midState.GetNeighbors();
+	for (std::string n : neighbors) {
+		Puzzle8State ns(n);
+		ns.Print();
+	}
 }
