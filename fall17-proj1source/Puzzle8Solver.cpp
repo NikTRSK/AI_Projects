@@ -44,10 +44,18 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 		Puzzle8State currState = generatedStates[curr.id];
 		// currState.Print();
 		if (IsVisited(curr.id, closedList)) continue;
-
+	
 		// Add to closed set
 		closedList.insert(curr.id);
 		++expansions;
+
+		if (currState.GetKey() == goalState.GetKey()) {
+			// std:: cout << "FOUND RESULT\n";
+			// generatedStates[stateID].Print();
+			cost = curr.f;
+			return;
+		}
+
 		/* Explore all neighbors */
 		std::vector<std::string> neighbors = currState.GetNeighbors();
 		for (const auto & n : neighbors) {
@@ -62,13 +70,7 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 				stateID = stateManager.GenerateState(neighborState);
 				generatedStates.push_back(neighborState);
 			}
-			
-			if (generatedStates[stateID].GetKey() == goalState.GetKey()) {
-				std:: cout << "FOUND RESULT\n";
-				generatedStates[stateID].Print();
-				cost = curr.f;
-				return;
-			}
+
 			/* Calculate heuristic */
 			int h = generatedStates[stateID].CaclucateDistance(goalStateLocations);
 			generatedStates[stateID].SetG(currState.GetG() + 1);
