@@ -25,7 +25,7 @@ public:
 
 		/* Init heuristic values */
 		f = std::numeric_limits<double>::max();;
-		g = 0; h = 0;
+		g = -1; h = 0;
 	}
 
 	// Key generated as an integer for the hash function in Puzzle8StateManager.

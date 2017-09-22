@@ -72,14 +72,27 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 			}
 
 			/* Calculate heuristic */
-			int h = generatedStates[stateID].CaclucateDistance(goalStateLocations);
-			generatedStates[stateID].SetG(currState.GetG() + 1);
-			double f = CalculateHeuristic(w, generatedStates[stateID].GetG(), h);
-
-			if (!IsVisited(stateID, closedList) || f < generatedStates[stateID].GetF()) {
+			if (currState.GetG() + 1 < generatedStates[stateID].GetG() || generatedStates[stateID].GetG() != -1 || !IsVisited(stateID, closedList)) {
+				int h = generatedStates[stateID].CaclucateDistance(goalStateLocations);
+				int g = currState.GetG() + 1;
+				if (generatedStates[stateID].GetG() != -1) {
+					if (generatedStates[stateID].GetG() < g)
+						g = generatedStates[stateID].GetG();
+				}
+				generatedStates[stateID].SetG(g);
+				double f = CalculateHeuristic(w, generatedStates[stateID].GetG(), h);
 				generatedStates[stateID].SetF(f);
 				pq.push(PQElement(stateID, f));
 			}
+
+			// int h = generatedStates[stateID].CaclucateDistance(goalStateLocations);
+			// generatedStates[stateID].SetG(currState.GetG() + 1);
+			// double f = CalculateHeuristic(w, generatedStates[stateID].GetG(), h);
+
+			// if (!IsVisited(stateID, closedList) || f < generatedStates[stateID].GetF()) {
+			// 	generatedStates[stateID].SetF(f);
+			// 	pq.push(PQElement(stateID, f));
+			// }
 		}
 	}
 }
