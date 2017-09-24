@@ -24,7 +24,7 @@ public:
 				tiles[r][c] = s[r*3 + c];
 
 		/* Init heuristic values */
-		f = std::numeric_limits<double>::max();;
+		f = std::numeric_limits<double>::max();
 		g = -1; h = 0;
 	}
 
