@@ -1,7 +1,6 @@
 #include "Puzzle8Solver.h"
 #include <vector>
 #include <unordered_map>
-#include <set>
 #include "Puzzle8State.h"
 #include "Puzzle8StateManager.h"
 #include "Puzzle8PQ.h"
@@ -21,20 +20,20 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 	Puzzle8State startState(puzzle);
 	Puzzle8StateManager stateManager;
 	Puzzle8PQ pq;
-	std::set<int> closedList;
+	std::unordered_set<int> closedList;
 	std::vector<Puzzle8State> generatedStates;
 	
 	/* Add initial state to the pq and the generatedStates */
 	int stateID = stateManager.GenerateState(startState);
-
-	int h = startState.CaclucateDistance(goalStateLocations);
 	startState.SetG(0);
+	int h = startState.CaclucateDistance(goalStateLocations);
 	double f = CalculateHeuristic(w, 0, h);
+	int g = 0;
 	startState.SetF(f);
 
 	pq.push(PQElement(stateID, f));
 	generatedStates.push_back(startState);
-
+	Puzzle8State neighborState;
 	while(!pq.empty()) {
 		PQElement curr = pq.top();
 		pq.pop();
@@ -55,7 +54,7 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 		/* Explore all neighbors */
 		std::vector<std::string> neighbors = currState.GetNeighbors();
 		for (const auto & n : neighbors) {
-			Puzzle8State neighborState(n);
+			neighborState = Puzzle8State(n);
 			/* If key generated get state from generated States */
 			if (stateManager.IsGenerated(neighborState)) {
 				stateID = stateManager.GetStateId(neighborState);
@@ -69,10 +68,10 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 
 			/* Calculate heuristic */
 			if (currState.GetG() + 1 < generatedStates[stateID].GetG() || generatedStates[stateID].GetG() != -1 || !IsVisited(stateID, closedList)) {
-				int h = generatedStates[stateID].CaclucateDistance(goalStateLocations);
-				int g = generatedStates[stateID].GetG() != -1 && generatedStates[stateID].GetG() < currState.GetG() + 1 ? generatedStates[stateID].GetG() : currState.GetG() + 1;
+				h = generatedStates[stateID].CaclucateDistance(goalStateLocations);
+				g = generatedStates[stateID].GetG() != -1 && generatedStates[stateID].GetG() < currState.GetG() + 1 ? generatedStates[stateID].GetG() : currState.GetG() + 1;
 				generatedStates[stateID].SetG(g);
-				double f = CalculateHeuristic(w, generatedStates[stateID].GetG(), h);
+				f = CalculateHeuristic(w, generatedStates[stateID].GetG(), h);
 				generatedStates[stateID].SetF(f);
 				pq.push(PQElement(stateID, f));
 			}
@@ -85,6 +84,6 @@ double CalculateHeuristic(double w, int g, int h) {
 	return f;
 }
 
-bool IsVisited(int stateID, const std::set<int> & set) {
+bool IsVisited(int stateID, const std::unordered_set<int> & set) {
 	return set.find(stateID) != set.end();
 }
