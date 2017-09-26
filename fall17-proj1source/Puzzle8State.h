@@ -26,6 +26,7 @@ public:
 		/* Init heuristic values */
 		f = std::numeric_limits<double>::max();
 		g = -1; h = 0;
+		visited = false;
 	}
 
 	// Key generated as an integer for the hash function in Puzzle8StateManager.
@@ -150,6 +151,8 @@ public:
 	int GetF() { return f; }
 	void SetF(int fVal) { f = fVal; }
 
+	void MarkVisited() { visited = true; }
+	bool IsVisited() { return visited; }
 private:
 
 	// tiles[r][c] is the tile (or blank) at row r (0-2) and column c (0-2)
@@ -160,6 +163,7 @@ private:
 	int h;
 	int g;
 	double f;
+	bool visited;
 };
 
 #endif

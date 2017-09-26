@@ -1,6 +1,5 @@
 #include "Puzzle8Solver.h"
 #include <vector>
-#include <unordered_map>
 #include "Puzzle8State.h"
 #include "Puzzle8StateManager.h"
 #include "Puzzle8PQ.h"
@@ -20,7 +19,6 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 	Puzzle8State startState(puzzle);
 	Puzzle8StateManager stateManager;
 	Puzzle8PQ pq;
-	std::unordered_set<int> closedList;
 	std::vector<Puzzle8State> generatedStates;
 	
 	/* Add initial state to the pq and the generatedStates */
@@ -34,16 +32,17 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 	pq.push(PQElement(stateID, f));
 	generatedStates.push_back(startState);
 	Puzzle8State neighborState;
+	Puzzle8State currState;
 	while(!pq.empty()) {
 		PQElement curr = pq.top();
 		pq.pop();
 
 		// Get current state
-		Puzzle8State currState = generatedStates[curr.id];
-		if (IsVisited(curr.id, closedList)) continue;
+		currState = generatedStates[curr.id];
+		if (generatedStates[curr.id].IsVisited()) continue;
 
 		// Add to closed set
-		closedList.insert(curr.id);
+		generatedStates[curr.id].MarkVisited();
 		++expansions;
 
 		if (currState.GetKey() == goalState.GetKey()) {
@@ -67,7 +66,7 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 			}
 
 			/* Calculate heuristic */
-			if (currState.GetG() + 1 < generatedStates[stateID].GetG() || generatedStates[stateID].GetG() != -1 || !IsVisited(stateID, closedList)) {
+			if (currState.GetG() + 1 < generatedStates[stateID].GetG() || generatedStates[stateID].GetG() != -1 || !generatedStates[stateID].IsVisited()) {
 				h = generatedStates[stateID].CaclucateDistance(goalStateLocations);
 				g = generatedStates[stateID].GetG() != -1 && generatedStates[stateID].GetG() < currState.GetG() + 1 ? generatedStates[stateID].GetG() : currState.GetG() + 1;
 				generatedStates[stateID].SetG(g);
@@ -82,8 +81,4 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 double CalculateHeuristic(double w, int g, int h) {
 	double f = g + w * h;
 	return f;
-}
-
-bool IsVisited(int stateID, const std::unordered_set<int> & set) {
-	return set.find(stateID) != set.end();
 }
