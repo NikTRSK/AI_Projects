@@ -1,0 +1,13 @@
+willwait,alt,bar,fri,hun,pat,price,rain,res,type,est
+1,y,n,n,y,some,3,n,y,french,0
+0,y,n,n,y,full,1,n,n,thai,2
+1,n,y,n,n,some,1,n,n,burger,0
+1,y,n,y,y,full,1,y,n,thai,1
+0,y,n,y,n,full,3,n,y,french,3
+1,n,y,n,y,some,2,y,y,italian,0
+0,n,y,n,n,none,1,y,n,burger,0
+1,n,n,n,y,some,2,y,y,thai,0
+0,n,y,y,n,full,1,y,n,burger,3
+0,y,y,y,y,full,3,n,y,italian,1
+0,n,n,n,n,none,1,n,n,thai,0
+1,y,y,y,y,full,1,n,n,burger,2

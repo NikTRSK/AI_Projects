@@ -41,6 +41,16 @@
     "xmemory0": "cpp",
     "xstddef": "cpp",
     "xtr1common": "cpp",
-    "xutility": "cpp"
+    "xutility": "cpp",
+    "unordered_set": "cpp",
+    "list": "cpp",
+    "xhash": "cpp",
+    "random": "cpp",
+    "array": "cpp",
+    "chrono": "cpp",
+    "iterator": "cpp",
+    "ratio": "cpp",
+    "tuple": "cpp",
+    "unordered_map": "cpp"
   }
 }

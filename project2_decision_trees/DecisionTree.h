@@ -2,19 +2,17 @@
 #define DECISION_TREE
 
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 class DecisionTree {
-private:
-  std::vector<std::vector<std::string>> mData;
-  std::vector<std::string> mHeader;
-
 public:
-  // DecisionTree();
-  // ~DecisionTree();
+  DecisionTree();
+  DecisionTree(std::string attributeName);
+  ~DecisionTree();
 
-  void ParseInputFile(const char * inputFile);
-  void PrintDataTable();
+private:
+  std::string mAttributeName;
+  std::unordered_map<std::string, DecisionTree> mNodes;
 };
 
 #endif

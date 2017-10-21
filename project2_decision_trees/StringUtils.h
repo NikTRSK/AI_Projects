@@ -3,7 +3,6 @@
 	https://github.com/NikTRSK/Cpp-Utility-Classes
 */
 
-#pragma once
 #include <string>
 #include <vector>
 #include <algorithm>
