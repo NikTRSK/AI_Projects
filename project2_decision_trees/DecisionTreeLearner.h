@@ -11,16 +11,16 @@ private:
   DecisionTree mTree;
 
 public:
-  void trainTree(const DataSet & dataset, const DataSet & parentExamples);
-  DecisionTree buildTree(const DataSet & examples, const DataSet & parentExamples);
+  void trainTree(const DataSet & dataset);
+  DecisionTree buildTree(const DataSet & examples, const std::vector<std::string> & attributes, const DataSet & parentExamples);
   
   std::string predict(const Example & e);
   DecisionTree getDecisionTree();
-
+  std::string majorityVote(const DataSet & examples);
   // void DecisionTreeLearnerLearning();
   void pluralityValue();
 
-  void PrintDataTable();
+  // void PrintDataTable();
 };
 
 #endif

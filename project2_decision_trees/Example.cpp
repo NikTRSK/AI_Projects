@@ -19,8 +19,8 @@ std::vector<std::string> Example::getAttributes() {
   return attributes;
 }
 
-std::string Example::getValue(std::string attribute) { return mAttributes.find(attribute)->second; }
+std::string Example::getValue(const std::string & attribute) const { return mAttributes.find(attribute)->second; }
 
 std::unordered_map <std::string, std::string> Example::getExample() { return mAttributes; }
 
-const bool Example::getTargetValue() { return mTarget; }
+const bool & Example::getTargetValue() const { return mTarget; }

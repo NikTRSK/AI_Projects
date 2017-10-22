@@ -11,9 +11,9 @@ public:
   ~Example();
 
   std::vector<std::string> getAttributes();
-  std::string getValue(std::string attribute);
+  std::string getValue(const std::string & attribute) const;
   std::unordered_map <std::string, std::string> getExample();
-  const bool getTargetValue();
+  const bool & getTargetValue() const;
 private:
   // Map header => value, for that line of code
   std::unordered_map <std::string, std::string> mAttributes;

@@ -11,9 +11,9 @@
 #include <random>       // std::default_random_engine
 #include <chrono>       // std::chrono::system_clock
 
-const unsigned int & DataSet::size() { return mExamples.size() };
+const unsigned int DataSet::size() const { return mExamples.size(); };
 
-const bool & DataSet::allExamplesAreSame() {
+bool DataSet::allExamplesAreSame() const {
   auto targets = getTargets();
   bool head = targets[0];
   for (bool target : targets) {
@@ -23,20 +23,46 @@ const bool & DataSet::allExamplesAreSame() {
   return true;
 }
 
-std::vector<std::string> DataSet::getHeader() {
+const std::unordered_set<std::string> DataSet::getAttributePossibities(const std::string & attributeName) const {
+  std::unordered_set<std::string> values;
+  for (auto value : getValuesForAttribute(attributeName)) {
+    values.insert(value);
+  }
+  return values;
+}
+
+const std::vector<std::string> & DataSet::getHeader() const {
   return mHeader;
 }
 
-std::vector<Example> DataSet::getDataSet() {
+void DataSet::addExample(const Example & example) {
+  mExamples.push_back(example);
+}
+
+void DataSet::setHeader(const std::vector<std::string> & header) {
+  mHeader = header;
+}
+
+const std::vector<Example> & DataSet::getDataSet() const {
   return mExamples;
 }
 
-std::vector<std::string> DataSet::getValuesForAttribute(std::string attributeName) {
+std::vector<std::string> DataSet::getValuesForAttribute(const std::string & attributeName) const {
   std::vector<std::string> col;
-  for (Example & e : mExamples) {
+  for (const Example & e : mExamples) {
     col.push_back(e.getValue(attributeName));
   }
   return col;
+}
+
+DataSet DataSet::filterAttribute(const std::string & attributeName, const std::string & value) const {
+  DataSet newDataSet;
+  for (auto & e: mExamples) {
+    if (e.getValue(attributeName) == value) {
+      newDataSet.addExample(e);
+    }
+  }
+  return newDataSet;
 }
 
 // std::vector<bool> DataSet::getTargetsForAttribute(const std::string & attributeName) {
@@ -47,9 +73,9 @@ std::vector<std::string> DataSet::getValuesForAttribute(std::string attributeNam
 //   return targetList;
 // }
 
-std::vector<bool> DataSet::getTargets() {
+std::vector<bool> DataSet::getTargets() const {
   std::vector<bool> targets;
-  for (Example & e : mExamples) {
+  for (const Example & e : mExamples) {
     targets.push_back(e.getTargetValue());
   }
   return targets;
@@ -98,11 +124,11 @@ void DataSet::loadDataSet(const char * inputFile) {
     std::cout << mExamples.size() << ", " << mTrain.size() + mTest.size() + mValidation.size() << "\n";
   }
 
-  std::string DataSet::maxGainAttribute() {
+  std::string DataSet::maxGainAttribute() const {
     // Iterate over all the headers
     double maxGain = -1;
     std::string maxAttrbiute;
-    for (auto & attribute : getHeader()) {
+    for (const auto & attribute : getHeader()) {
       std::cout << "Checking " << attribute << "\n";
       double gain = calculateAttributeGain(attribute);
       std::cout << gain << "\n";
@@ -116,7 +142,7 @@ void DataSet::loadDataSet(const char * inputFile) {
     return maxAttrbiute;
   }
 
-  double DataSet::calculateAttributeGain(std::string attributeName) {
+  double DataSet::calculateAttributeGain(std::string attributeName) const {
     int exampleCount = mExamples.size();
     // pair: pos, neg
     std::unordered_map<std::string, std::pair<int, int>> exampleCounts;
@@ -165,7 +191,7 @@ void DataSet::loadDataSet(const char * inputFile) {
   //   return h;
   // }
 
-  double DataSet::calculateEnthropy(int positiveExamples, int negativeExamples) {
+  double DataSet::calculateEnthropy(int positiveExamples, int negativeExamples) const {
     double totalExamples = positiveExamples + negativeExamples;
     std::cout << "totalEx: " << totalExamples << ", p: " << positiveExamples << ", n: " << negativeExamples << "\n";
 
@@ -176,14 +202,8 @@ void DataSet::loadDataSet(const char * inputFile) {
     return h;
   }
 
-  double DataSet::Log2(double q) {
+  double DataSet::Log2(double q) const {
     if (q == 0.0 || q == 1.0) return 0;
     std::cout << "LOG: " << (q * log2(q) + (1 - q) * log2(1 - q)) << "\n";
     return (q * log2(q) + (1 - q) * log2(1 - q));
-  }
-
-  double DataSet::Log2(int a, int b) {
-    if ((double)a / b == 0 || (double)a / b == 1) return 0;
-    std::cout << "LOG: " << (log2(double(a) / b)) << "\n";
-    return log2(double(a) / b);
   }
