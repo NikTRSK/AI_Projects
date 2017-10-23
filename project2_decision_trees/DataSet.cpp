@@ -1,5 +1,5 @@
 #include "DataSet.h"
-#include "StringUtils.h"
+// #include "StringUtils.h"
 #include "Example.h"
 #include <iostream>
 #include <fstream>
@@ -124,21 +124,21 @@ void DataSet::loadDataSet(const char * inputFile) {
     std::cout << mExamples.size() << ", " << mTrain.size() + mTest.size() + mValidation.size() << "\n";
   }
 
-  std::string DataSet::maxGainAttribute() const {
+  std::string DataSet::maxGainAttribute(const std::vector<std::string> & attributes) const {
     // Iterate over all the headers
     double maxGain = -1;
     std::string maxAttrbiute;
-    for (const auto & attribute : getHeader()) {
-      std::cout << "Checking " << attribute << "\n";
+    for (const auto & attribute : attributes) {
+      // std::cout << "Checking " << attribute << "\n";
       double gain = calculateAttributeGain(attribute);
-      std::cout << gain << "\n";
+      // std::cout << gain << "\n";
       if (gain > maxGain) {
         maxGain = gain;
         maxAttrbiute = attribute;
       }
     }
 
-    std::cout << "Max: " << maxAttrbiute << " - " << maxGain << "\n";
+    // std::cout << "Max: " << maxAttrbiute << " - " << maxGain << "\n";
     return maxAttrbiute;
   }
 
@@ -164,20 +164,20 @@ void DataSet::loadDataSet(const char * inputFile) {
       }
     }
     double remainder = 0.0;
-    double localGain = 0.0;
+    // double localGain = 0.0;
     int totalPositive = 0;
     for (auto attributeCount : exampleCounts) {
-      std::cout << attributeCount.first << ": " << attributeCount.second.first << ", " << 
-      attributeCount.second.second << "\n";
+      // std::cout << attributeCount.first << ": " << attributeCount.second.first << ", " << 
+      // attributeCount.second.second << "\n";
       totalPositive += attributeCount.second.first;
       int countPosNeg = attributeCount.second.first + attributeCount.second.second;
       remainder += (countPosNeg / (double)exampleCount)
                   * calculateEnthropy(attributeCount.second.first, attributeCount.second.second);
-      std::cout << "Gain: " << localGain << "\n";
+      // std::cout << "Gain: " << localGain << "\n";
       // remainder += localGain;
     }
     double b = -Log2((double)totalPositive / exampleCount);
-    std::cout << "TOTAL: " << exampleCount << ", Total Gain: " << b - remainder << "\n";
+    // std::cout << "TOTAL: " << exampleCount << ", Total Gain: " << b - remainder << "\n";
     return b - remainder;
   }
 
@@ -193,17 +193,17 @@ void DataSet::loadDataSet(const char * inputFile) {
 
   double DataSet::calculateEnthropy(int positiveExamples, int negativeExamples) const {
     double totalExamples = positiveExamples + negativeExamples;
-    std::cout << "totalEx: " << totalExamples << ", p: " << positiveExamples << ", n: " << negativeExamples << "\n";
+    // std::cout << "totalEx: " << totalExamples << ", p: " << positiveExamples << ", n: " << negativeExamples << "\n";
 
     double h = -Log2((double)positiveExamples / totalExamples);
     // double h = -(positiveExamples / totalExamples) * Log2(positiveExamples, totalExamples);
               //  -(negativeExamples / totalExamples) * Log2(negativeExamples, totalExamples);
-    std::cout << "H: " << h << "\n";
+    // std::cout << "H: " << h << "\n";
     return h;
   }
 
   double DataSet::Log2(double q) const {
     if (q == 0.0 || q == 1.0) return 0;
-    std::cout << "LOG: " << (q * log2(q) + (1 - q) * log2(1 - q)) << "\n";
+    // std::cout << "LOG: " << (q * log2(q) + (1 - q) * log2(1 - q)) << "\n";
     return (q * log2(q) + (1 - q) * log2(1 - q));
   }

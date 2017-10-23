@@ -8,19 +8,20 @@
 
 class DecisionTreeLearner {
 private:
-  DecisionTree mTree;
+  DecisionTree *mTree;
 
 public:
+  ~DecisionTreeLearner();
   void trainTree(const DataSet & dataset);
-  DecisionTree buildTree(const DataSet & examples, const std::vector<std::string> & attributes, const DataSet & parentExamples);
+  DecisionTree *buildTree(const DataSet & examples, const std::vector<std::string> & attributes, const DataSet & parentExamples);
   
   std::string predict(const Example & e);
+  std::string predict(DecisionTree & tree, const Example & e);
   DecisionTree getDecisionTree();
   std::string majorityVote(const DataSet & examples);
-  // void DecisionTreeLearnerLearning();
-  void pluralityValue();
-
-  // void PrintDataTable();
+  std::vector<std::string> removeAttribute(const std::vector<std::string> &attributes, const std::string &toRemove);
+  void printTree(DecisionTree *tree);
+  void printTree();
 };
 
 #endif

@@ -9,6 +9,16 @@ Example::Example(std::vector<std::string> attributes, std::vector<std::string> e
  mTarget = (exampleRow[0] == "0") ? false : true;
 }
 
+Example::Example(std::string attributes, std::string exampleRow, bool isPrediction) {
+  auto attrbs = StringUtils::SplitString(attributes, ",");
+  auto values = StringUtils::SplitString(exampleRow, ",");
+  std::cout << "Sizes: " << attrbs.size() << ", " << values.size() << "\n";
+  for (unsigned int i = 0; i < attrbs.size(); ++i) {
+   std::cout << attrbs[i] << " | " << values[i] << "\n";
+   mAttributes.insert({attrbs[i], values[i]});
+  }
+ }
+
 Example::~Example() {}
 
 std::vector<std::string> Example::getAttributes() {

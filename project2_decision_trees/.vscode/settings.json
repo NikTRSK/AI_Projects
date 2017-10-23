@@ -51,6 +51,7 @@
     "iterator": "cpp",
     "ratio": "cpp",
     "tuple": "cpp",
-    "unordered_map": "cpp"
+    "unordered_map": "cpp",
+    "memory": "cpp"
   }
 }

@@ -4,8 +4,9 @@
 #include <cassert>
 #include <iomanip>
 
-// #include "DecisionTree.h"
+#include "DecisionTreeLearner.h"
 #include "DataSet.h"
+//#include <conio.h>
 
 using namespace std;
 
@@ -24,7 +25,23 @@ int main(int argc, char *argv[]) {
 	DataSet ds;
 	ds.loadDataSet(argv[1]);
 	// ds.splitData();
-	std::string max = ds.maxGainAttribute();
-	std::cout << "fin: " << max << "\n";
+	// std::string max = ds.maxGainAttribute();
+	// std::cout << "fin: " << max << "\n";
+	DecisionTreeLearner dtl;
+	dtl.trainTree(ds);
+//	dtl.printTree();
+
+	std::string attributes = "alt,bar,fri,hun,pat,price,rain,res,type,est";
+	std::string data = "n,y,n,n,some,1,n,n,burger,0";
+	Example e(attributes, data, true);
+	std::string prediction = dtl.predict(e);
+	std::cout << "Prediction: " << prediction << "\n";
+
+	attributes = "alt,bar,fri,hun,pat,price,rain,res,type,est";
+	data = "y,n,n,y,full,1,n,n,thai,2";
+	Example e2(attributes, data, true);
+	prediction = dtl.predict(e2);
+	std::cout << "Prediction: " << prediction << "\n";
+//	system("pause");
 	return 0;
 }

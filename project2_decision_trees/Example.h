@@ -4,10 +4,12 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include "StringUtils.h"
 
 class Example {
 public:
   Example(std::vector<std::string> attributes, std::vector<std::string> exampleRow);
+  Example(std::string attributes, std::string exampleRow, bool isPrediction);
   ~Example();
 
   std::vector<std::string> getAttributes();

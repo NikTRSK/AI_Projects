@@ -24,7 +24,7 @@ public:
   void splitData ();
 
   /* HEURISTICS */
-  std::string maxGainAttribute() const;
+  std::string maxGainAttribute(const std::vector<std::string> & attributes) const;
   double calculateAttributeGain(std::string attributeName) const;
   double calculateEnthropy(int positiveExamples, int negativeExamples) const;
   double Log2(double q) const;

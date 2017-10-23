@@ -3,6 +3,9 @@
 	https://github.com/NikTRSK/Cpp-Utility-Classes
 */
 
+#ifndef STRING_UTILS
+#define STRING_UTILS
+
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -13,7 +16,7 @@
 namespace StringUtils
 {
 	/* Returns a vector of tokens  */
-	std::vector<std::string> SplitString(const std::string &input, const std::string &delimiter) noexcept
+	inline std::vector<std::string> SplitString(const std::string &input, const std::string &delimiter) noexcept
 	{
 		std::vector<std::string> tokens;
 		std::string token;
@@ -30,7 +33,7 @@ namespace StringUtils
 	}
 
 	/* Trims whitespace from the sides of a string */
-	void TrimInPlace(std::string& input) noexcept
+	inline void TrimInPlace(std::string& input) noexcept
 	{
 		// Remove whitespace on the left
 		auto left = input.find_first_not_of(' ');
@@ -47,7 +50,7 @@ namespace StringUtils
 	}
 
 	/* Returns a new string with the whitespace trimmed */
-	std::string Trim(const std::string& input) noexcept
+	inline std::string Trim(const std::string& input) noexcept
 	{
 		// Remove whitespace on the left
 		auto left = input.find_first_not_of(' ');
@@ -65,7 +68,7 @@ namespace StringUtils
 	}
 
 	/* Removes whitespace from beginning of the string */
-	std::string TrimFront(const std::string& input) noexcept
+	inline std::string TrimFront(const std::string& input) noexcept
 	{
 		// Remove whitespace on the left
 		auto left = input.find_first_not_of(' ');
@@ -76,7 +79,7 @@ namespace StringUtils
 	}
 
 	/* Removes whitespace from end of the string */
-	std::string TrimBack(const std::string& input) noexcept
+	inline std::string TrimBack(const std::string& input) noexcept
 	{
 		// Remove whitespace on the right
 		auto right = input.find_last_not_of(' ');
@@ -87,14 +90,14 @@ namespace StringUtils
 	}
 
 	/* Returns true if the passed in string is an integer number */
-	bool IsNumber(const std::string& input) noexcept
+	inline bool IsNumber(const std::string& input) noexcept
 	{
 		return !input.empty() && std::all_of(input.begin(), input.end(), ::isdigit);
 	}
 
 	/* Returns a string of the passed in number formated with decimal spaces */
 	template <typename T>
-	std::string ToStringWithPrecision(const T& number, const int decimalPlaces) noexcept
+	inline std::string ToStringWithPrecision(const T& number, const int decimalPlaces) noexcept
 	{
 		std::ostringstream toOutput;
 		toOutput << std::fixed << std::setprecision(decimalPlaces) << number;
@@ -102,46 +105,46 @@ namespace StringUtils
 	}
 
 	/* Checks if the substring is contained anywhere in the strung */
-	bool Contains(std::string input, std::string substring) noexcept
+	inline bool Contains(std::string input, std::string substring) noexcept
 	{
 		if (substring.size() > input.size()) return false;
 		return input.find(substring) != std::string::npos;
 	}
 
 	/* Check if the a string starts with a certain substring */
-	bool StartsWith(std::string input, std::string substring) noexcept
+	inline bool StartsWith(std::string input, std::string substring) noexcept
 	{
 		if (substring.size() > input.size()) return false;
 		return std::equal(substring.begin(), substring.end(), input.begin());
 	}
 
 	/* Check if the a string ends with a certain substring */
-	bool EndsWith(std::string input, std::string substring) noexcept
+	inline bool EndsWith(std::string input, std::string substring) noexcept
 	{
 		if (substring.size() > input.size()) return false;
 		return std::equal(substring.rbegin(), substring.rend(), input.rbegin());
 	}
 
 	/* Checks whether a character is a lowercase */
-	bool IsLower(char c) noexcept
+	inline bool IsLower(char c) noexcept
 	{
 		return (c >= 'a' && c <= 'z');
 	}
 
 	/* Checks whether a character is an uppercase */
-	bool IsUpper(char c) noexcept
+	inline bool IsUpper(char c) noexcept
 	{
 		return (c >= 'A' && c <= 'Z');
 	}
 
 	/* Checks if a letter is an ASCII character */
-	bool IsChar(char c) noexcept
+	inline bool IsChar(char c) noexcept
 	{
 		return (IsUpper(c) || IsLower(c));
 	}
 
 	/* Converts a string to all uppercase */
-	std::string ToUpper(const std::string &toConvert) noexcept
+	inline std::string ToUpper(const std::string &toConvert) noexcept
 	{
 		std::string toReturn;
 
@@ -157,7 +160,7 @@ namespace StringUtils
 	}
 
 	/* Converts a string to all lowercase */
-	std::string ToLower(const std::string &toConvert) noexcept
+	inline std::string ToLower(const std::string &toConvert) noexcept
 	{
 		std::string toReturn;
 
@@ -172,3 +175,5 @@ namespace StringUtils
 		return toReturn;
 	}
 }
+
+#endif
