@@ -25,14 +25,23 @@ const std::string & DecisionTree::getName() { return mAttributeName; }
 
 DecisionTree *DecisionTree::getNode(const std::string &attributeName) {
   auto value = mNodes.find(attributeName);
-  if (value == mNodes.end()) return nullptr;
+  if (value == mNodes.end()) {
+    // return nullptr;
+    // Majority vote
+    // std::unordered_map<std::string>
+    // for (auto kv: mNodes) {
+      
+    // }
+    return mNodes.begin()->second;
+  }
   return value->second;
 }
 
 bool DecisionTree::isLeafNode() { return isLeaf; }
 
 DecisionTree::~DecisionTree() {
-  // for (auto kv: mNodes) {
-  //   delete kv.second;
-  // }
+   for (auto kv: mNodes) {
+     if (kv.second != nullptr)
+       delete kv.second;
+   }
 }

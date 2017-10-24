@@ -1,5 +1,5 @@
 #include "DataSet.h"
-// #include "StringUtils.h"
+#include "StringUtils.hpp"
 #include "Example.h"
 #include <iostream>
 #include <fstream>
@@ -10,6 +10,13 @@
 #include <array>        // std::array
 #include <random>       // std::default_random_engine
 #include <chrono>       // std::chrono::system_clock
+
+DataSet::DataSet() {}
+
+DataSet::DataSet(const std::vector<std::string> & header, const std::vector<Example> & examples) {
+  mHeader = header;
+  mExamples = examples;
+}
 
 const unsigned int DataSet::size() const { return mExamples.size(); };
 
@@ -94,6 +101,12 @@ void DataSet::loadDataSet(const char * inputFile) {
     // Get header
     std::getline(dataFile, row);
     mHeader = StringUtils::SplitString(row, ",");
+    // std::cout << "WTF|" << row << "\n";
+    // for (auto s : StringUtils::SplitString(row, ",")) std::cout << s << " | ";
+    // std::cout << "\n\n";
+    // std::cout << "!!!!!!!!!======== IN Load: \n";
+    // for (const auto & s : mHeader) std::cout << s << " | ";
+    // std::cout << "\n";
     // Get all data
     while (std::getline(dataFile, row))
     {
@@ -102,43 +115,58 @@ void DataSet::loadDataSet(const char * inputFile) {
     }
     dataFile.close();
     mHeader.erase(mHeader.begin());
-    
+    // std::cout << "!!!!!!!!!======== After IN Load: \n";
+    // for (const auto & s : mHeader) std::cout << s << " | ";
+    // std::cout << "\n";
     std::cout << "Data Loaded\n";
   }
 
-  void DataSet::splitData() {
+  std::vector<DataSet> DataSet::splitData() {
+    std::vector<Example> mTrain;
+    std::vector<Example> mTest;
+    std::vector<Example> mValidation;
+
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     // Shuffle data
     shuffle (mExamples.begin(), mExamples.end(), std::default_random_engine(seed));
     /* SHOULD WE TAKE THE CEILING FOR TRAIN TEST */
   
     // Get Training Samples (60%)
-    int sampleSize = ceil(mExamples.size()*0.6);
-    std::copy (mExamples.begin(), mExamples.begin() + sampleSize, back_inserter(mTrain));
+    int trainSize = floor(mExamples.size()*0.6);
+    std::copy (mExamples.begin(), mExamples.begin() + trainSize + 1, back_inserter(mTrain));
     // Get Testing Samples (20%)
-    sampleSize = ceil(mExamples.size()*0.2);
-    std::copy (mExamples.begin(), mExamples.begin() + sampleSize, back_inserter(mTest));
+    int testSize = floor(mExamples.size()*0.2);
+    std::copy (mExamples.begin() + trainSize + 1, mExamples.begin() + trainSize + testSize + 1, back_inserter(mTest));
     // Get Validation Samples (20%)
-    sampleSize = ceil(mExamples.size()*0.2);
-    std::copy (mExamples.begin(), mExamples.begin() + sampleSize, back_inserter(mValidation));
-    std::cout << mExamples.size() << ", " << mTrain.size() + mTest.size() + mValidation.size() << "\n";
+    int validationSize = floor(mExamples.size()*0.2);
+    std::copy (mExamples.begin() + trainSize + testSize + 1, mExamples.begin() + trainSize + testSize + validationSize + 1, back_inserter(mValidation));
+//    std::cout << mExamples.size() << ", " << mTrain.size() + mTest.size() + mValidation.size() <<
+//                ", trainSize: " << mTrain.size() << ", testSize: " << mTest.size() << ", validSize: " << mValidation.size() << "\n";
+
+	DataSet train(mHeader, mTrain);
+	DataSet validation(mHeader, mValidation);
+	DataSet test(mHeader, mTest);
+	std::vector<DataSet> datasets = { train, validation, test };
+	return datasets;
   }
 
   std::string DataSet::maxGainAttribute(const std::vector<std::string> & attributes) const {
+    // for (const auto & a : attributes) std::cout << a << " | ";
+    // std::cout << "\n";
     // Iterate over all the headers
     double maxGain = -1;
     std::string maxAttrbiute;
     for (const auto & attribute : attributes) {
       // std::cout << "Checking " << attribute << "\n";
       double gain = calculateAttributeGain(attribute);
-      // std::cout << gain << "\n";
+      //  std::cout << "==GAIN FOR:" << attribute << ": " << gain << "\n";
       if (gain > maxGain) {
         maxGain = gain;
         maxAttrbiute = attribute;
       }
     }
 
-    // std::cout << "Max: " << maxAttrbiute << " - " << maxGain << "\n";
+    //  std::cout << "*** MaxAttribute: " << maxAttrbiute << ": " << maxGain << "\n";
     return maxAttrbiute;
   }
 
@@ -177,7 +205,7 @@ void DataSet::loadDataSet(const char * inputFile) {
       // remainder += localGain;
     }
     double b = -Log2((double)totalPositive / exampleCount);
-    // std::cout << "TOTAL: " << exampleCount << ", Total Gain: " << b - remainder << "\n";
+    // std::cout << attributeName << ", TOTAL: " << exampleCount << ", B: " << b << ", rem: " << remainder << ", Total Gain: " << b - remainder << "\n";
     return b - remainder;
   }
 
@@ -198,7 +226,7 @@ void DataSet::loadDataSet(const char * inputFile) {
     double h = -Log2((double)positiveExamples / totalExamples);
     // double h = -(positiveExamples / totalExamples) * Log2(positiveExamples, totalExamples);
               //  -(negativeExamples / totalExamples) * Log2(negativeExamples, totalExamples);
-    // std::cout << "H: " << h << "\n";
+    //  std::cout << "H: " << h << "\n";
     return h;
   }
 

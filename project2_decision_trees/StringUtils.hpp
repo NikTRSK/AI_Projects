@@ -12,11 +12,12 @@
 #include <iomanip>
 #include <sstream>
 
+#include <iostream>
 /* TODO: Create StringUtils namespace */
 namespace StringUtils
 {
 	/* Returns a vector of tokens  */
-	inline std::vector<std::string> SplitString(const std::string &input, const std::string &delimiter) noexcept
+ 	static inline std::vector<std::string> SplitString(const std::string &input, const std::string &delimiter) noexcept
 	{
 		std::vector<std::string> tokens;
 		std::string token;
@@ -28,12 +29,14 @@ namespace StringUtils
 			position = found + 1;
 		}
 		tokens.push_back(input.substr(position));
-
+		// std::cout << "in string \n";
+		// for (int i = 0; i < tokens.size(); ++i) std::cout << tokens[i] << ", ";
+		// std:: cout << "\n";
 		return tokens;
 	}
 
 	/* Trims whitespace from the sides of a string */
-	inline void TrimInPlace(std::string& input) noexcept
+	static inline void TrimInPlace(std::string& input) noexcept
 	{
 		// Remove whitespace on the left
 		auto left = input.find_first_not_of(' ');
@@ -50,7 +53,7 @@ namespace StringUtils
 	}
 
 	/* Returns a new string with the whitespace trimmed */
-	inline std::string Trim(const std::string& input) noexcept
+	static inline std::string Trim(const std::string& input) noexcept
 	{
 		// Remove whitespace on the left
 		auto left = input.find_first_not_of(' ');
@@ -68,7 +71,7 @@ namespace StringUtils
 	}
 
 	/* Removes whitespace from beginning of the string */
-	inline std::string TrimFront(const std::string& input) noexcept
+	static inline std::string TrimFront(const std::string& input) noexcept
 	{
 		// Remove whitespace on the left
 		auto left = input.find_first_not_of(' ');
@@ -79,7 +82,7 @@ namespace StringUtils
 	}
 
 	/* Removes whitespace from end of the string */
-	inline std::string TrimBack(const std::string& input) noexcept
+	static inline std::string TrimBack(const std::string& input) noexcept
 	{
 		// Remove whitespace on the right
 		auto right = input.find_last_not_of(' ');
@@ -90,14 +93,14 @@ namespace StringUtils
 	}
 
 	/* Returns true if the passed in string is an integer number */
-	inline bool IsNumber(const std::string& input) noexcept
+	static inline bool IsNumber(const std::string& input) noexcept
 	{
 		return !input.empty() && std::all_of(input.begin(), input.end(), ::isdigit);
 	}
 
 	/* Returns a string of the passed in number formated with decimal spaces */
 	template <typename T>
-	inline std::string ToStringWithPrecision(const T& number, const int decimalPlaces) noexcept
+	static inline std::string ToStringWithPrecision(const T& number, const int decimalPlaces) noexcept
 	{
 		std::ostringstream toOutput;
 		toOutput << std::fixed << std::setprecision(decimalPlaces) << number;
@@ -105,46 +108,46 @@ namespace StringUtils
 	}
 
 	/* Checks if the substring is contained anywhere in the strung */
-	inline bool Contains(std::string input, std::string substring) noexcept
+	static inline bool Contains(std::string input, std::string substring) noexcept
 	{
 		if (substring.size() > input.size()) return false;
 		return input.find(substring) != std::string::npos;
 	}
 
 	/* Check if the a string starts with a certain substring */
-	inline bool StartsWith(std::string input, std::string substring) noexcept
+	static inline bool StartsWith(std::string input, std::string substring) noexcept
 	{
 		if (substring.size() > input.size()) return false;
 		return std::equal(substring.begin(), substring.end(), input.begin());
 	}
 
 	/* Check if the a string ends with a certain substring */
-	inline bool EndsWith(std::string input, std::string substring) noexcept
+	static inline bool EndsWith(std::string input, std::string substring) noexcept
 	{
 		if (substring.size() > input.size()) return false;
 		return std::equal(substring.rbegin(), substring.rend(), input.rbegin());
 	}
 
 	/* Checks whether a character is a lowercase */
-	inline bool IsLower(char c) noexcept
+	static inline bool IsLower(char c) noexcept
 	{
 		return (c >= 'a' && c <= 'z');
 	}
 
 	/* Checks whether a character is an uppercase */
-	inline bool IsUpper(char c) noexcept
+	static inline bool IsUpper(char c) noexcept
 	{
 		return (c >= 'A' && c <= 'Z');
 	}
 
 	/* Checks if a letter is an ASCII character */
-	inline bool IsChar(char c) noexcept
+	static inline bool IsChar(char c) noexcept
 	{
 		return (IsUpper(c) || IsLower(c));
 	}
 
 	/* Converts a string to all uppercase */
-	inline std::string ToUpper(const std::string &toConvert) noexcept
+	static inline std::string ToUpper(const std::string &toConvert) noexcept
 	{
 		std::string toReturn;
 
@@ -160,7 +163,7 @@ namespace StringUtils
 	}
 
 	/* Converts a string to all lowercase */
-	inline std::string ToLower(const std::string &toConvert) noexcept
+	static inline std::string ToLower(const std::string &toConvert) noexcept
 	{
 		std::string toReturn;
 
@@ -173,6 +176,19 @@ namespace StringUtils
 		}
 
 		return toReturn;
+	}
+
+	/* Format strings with equal spacing between tokens */
+	/* https://stackoverflow.com/questions/14765155/how-can-i-easily-format-my-data-table-in-c */
+	static inline std::string centerString(const std::string & s, const int w) {
+		std::stringstream ss, spaces;
+		int padding = w - s.size();                 // count excess room to pad
+		for(int i=0; i<padding/2; ++i)
+				spaces << " ";
+		ss << spaces.str() << s << spaces.str();    // format with padding
+		if(padding>0 && padding%2!=0)               // if odd #, add 1 space
+				ss << " ";
+		return ss.str();
 	}
 }
 

@@ -8,6 +8,8 @@
 
 class DataSet {
 public:
+  DataSet();
+  DataSet(const std::vector<std::string> & header, const std::vector<Example> & examples);
   void loadDataSet(const char * inputFile);
   const unsigned int size() const;
   const std::vector<std::string> & getHeader() const;
@@ -21,7 +23,7 @@ public:
 
   // std::vector<bool> getTargetsForAttribute(const std::string & attributeName);
   std::vector<bool> getTargets() const;
-  void splitData ();
+  std::vector<DataSet> splitData();
 
   /* HEURISTICS */
   std::string maxGainAttribute(const std::vector<std::string> & attributes) const;
@@ -31,10 +33,6 @@ public:
 private:
   std::vector<std::string> mHeader;
   std::vector<Example> mExamples;
-
-  std::vector<Example> mTrain;
-  std::vector<Example> mTest;
-  std::vector<Example> mValidation;
 };
 
 #endif

@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-#include "StringUtils.h"
 
 class Example {
 public:
