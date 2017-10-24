@@ -9,15 +9,14 @@ class Example {
 public:
   Example(std::vector<std::string> attributes, std::vector<std::string> exampleRow);
   Example(std::string attributes, std::string exampleRow, bool isPrediction);
-  ~Example();
 
   std::vector<std::string> getAttributes();
-  std::string getValue(const std::string & attribute) const;
-  std::unordered_map <std::string, std::string> getExample();
+  const std::string & getValue(const std::string & attribute) const;
+  const std::unordered_map <std::string, std::string> & getExample();
   const bool & getTargetValue() const;
 private:
-  // Map header => value, for that line of code
-  std::unordered_map <std::string, std::string> mAttributes;
+  // Map header => value, for that example line
+  std::unordered_map<std::string, std::string> mAttributes;
   // Target
   bool mTarget;
 };

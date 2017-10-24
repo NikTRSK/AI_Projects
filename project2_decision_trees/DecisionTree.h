@@ -7,7 +7,6 @@
 
 class DecisionTree {
 public:
-  // DecisionTree();
   DecisionTree(std::string attributeName);
   DecisionTree(std::string attributeName, bool leaf);
   ~DecisionTree();

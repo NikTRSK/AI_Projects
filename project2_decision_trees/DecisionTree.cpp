@@ -1,7 +1,5 @@
 #include "DecisionTree.h"
 
-// DecisionTree::DecisionTree() { isLeaf = false; }
-
 DecisionTree::DecisionTree(std::string attributeName) {
   mAttributeName = attributeName;
   isLeaf = false;
