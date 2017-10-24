@@ -6,7 +6,11 @@
 #include <iterator>
 #include <iomanip>      // std::setfill, std::setw
 
-DecisionTreeLearner::~DecisionTreeLearner() { delete mTree; }
+DecisionTreeLearner::~DecisionTreeLearner() {
+  delete mTree;
+  if (__DEFAULT__ != nullptr)
+    delete __DEFAULT__;
+}
 
 void DecisionTreeLearner::trainTree(DataSet & examples) {
   DataSet parent;
@@ -32,9 +36,9 @@ void DecisionTreeLearner::trainTree(DataSet & examples) {
     currTree = buildTree(datasets[0], datasets[0].getHeader(), parent, depthBound, 0);
     // Check it against the validation set
     // std::cout << "CurrDepth: " << depthBound << "\n";
-    int correctCountTrain = validateTree(*currTree, datasets[0].getDataSet());
-    int correctCountValidate = validateTree(*currTree, datasets[1].getDataSet());
-    int correctCountTest = validateTree(*currTree, datasets[2].getDataSet());
+    unsigned int correctCountTrain = validateTree(*currTree, datasets[0].getDataSet());
+    unsigned int correctCountValidate = validateTree(*currTree, datasets[1].getDataSet());
+    unsigned int correctCountTest = validateTree(*currTree, datasets[2].getDataSet());
     std::cout << StringUtils::centerString(std::to_string(depthBound), 12)
               << StringUtils::centerString(std::to_string((double)correctCountTrain / datasets[0].size() * 100), 12)
               << StringUtils::centerString(std::to_string((double)correctCountValidate / datasets[1].size() * 100), 12)
@@ -95,10 +99,15 @@ DecisionTree *DecisionTreeLearner::buildTree(const DataSet & examples,
     tree->addNode(value, subTree);
   }
   // std::cout << "at d: " << currDepth << "\n";
+  // Handle missing values
+  std::string __OTHER__ = majorityVote(parentExamples);
+  tree->setDefault(__OTHER__);
   return tree;
 }
 
 std::string DecisionTreeLearner::majorityVote(const DataSet & examples) {
+  if (examples.size() == 0)
+    return "True";
   int posCount = 0;
   int negCount = 0;
   for (auto & e: examples.getDataSet()) {

@@ -16,11 +16,14 @@ public:
   const std::string & getName();
   DecisionTree *getNode(const std::string &attributeName);
   bool isLeafNode();
+  void setDefault(const std::string & defaultValue);
 
 private:
   std::string mAttributeName;
   std::unordered_map<std::string, DecisionTree*> mNodes;
   bool isLeaf;
+
+  DecisionTree* __DEFAULT__ = nullptr;
 };
 
 #endif

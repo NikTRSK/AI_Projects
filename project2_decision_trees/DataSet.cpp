@@ -72,14 +72,6 @@ DataSet DataSet::filterAttribute(const std::string & attributeName, const std::s
   return newDataSet;
 }
 
-// std::vector<bool> DataSet::getTargetsForAttribute(const std::string & attributeName) {
-//   std::vector<bool> targetList;
-//   for (Example & e : mExamples) {
-//     targetList.push_back(e.getTargetValue(attributeName));
-//   }
-//   return targetList;
-// }
-
 std::vector<bool> DataSet::getTargets() const {
   std::vector<bool> targets;
   for (const Example & e : mExamples) {
@@ -107,14 +99,14 @@ void DataSet::loadDataSet(const char * inputFile) {
     // std::cout << "!!!!!!!!!======== IN Load: \n";
     // for (const auto & s : mHeader) std::cout << s << " | ";
     // std::cout << "\n";
-    // Get all data
+    // // Get all data
     while (std::getline(dataFile, row))
     {
       Example e(mHeader, StringUtils::SplitString(row, ","));
       mExamples.push_back(e);
     }
+	mHeader.erase(mHeader.begin());
     dataFile.close();
-    mHeader.erase(mHeader.begin());
     // std::cout << "!!!!!!!!!======== After IN Load: \n";
     // for (const auto & s : mHeader) std::cout << s << " | ";
     // std::cout << "\n";
@@ -171,6 +163,7 @@ void DataSet::loadDataSet(const char * inputFile) {
   }
 
   double DataSet::calculateAttributeGain(std::string attributeName) const {
+//    std::cout << "AName: " << attributeName << "\n";
     int exampleCount = mExamples.size();
     // pair: pos, neg
     std::unordered_map<std::string, std::pair<int, int>> exampleCounts;
@@ -209,29 +202,15 @@ void DataSet::loadDataSet(const char * inputFile) {
     return b - remainder;
   }
 
-  // double DataSet::calculateEnthropy(int positiveExamples, int negativeExamples) {
-  //   double totalExamples = positiveExamples + negativeExamples;
-  //   std::cout << "totalEx: " << totalExamples << ", p: " << positiveExamples << ", n: " << negativeExamples << "\n";
-
-  //   double h = -(positiveExamples / totalExamples) * Log2(positiveExamples, totalExamples)
-  //              -(negativeExamples / totalExamples) * Log2(negativeExamples, totalExamples);
-  //   std::cout << "H: " << h << "\n";
-  //   return h;
-  // }
-
   double DataSet::calculateEnthropy(int positiveExamples, int negativeExamples) const {
     double totalExamples = positiveExamples + negativeExamples;
     // std::cout << "totalEx: " << totalExamples << ", p: " << positiveExamples << ", n: " << negativeExamples << "\n";
 
     double h = -Log2((double)positiveExamples / totalExamples);
-    // double h = -(positiveExamples / totalExamples) * Log2(positiveExamples, totalExamples);
-              //  -(negativeExamples / totalExamples) * Log2(negativeExamples, totalExamples);
-    //  std::cout << "H: " << h << "\n";
     return h;
   }
 
   double DataSet::Log2(double q) const {
     if (q == 0.0 || q == 1.0) return 0;
-    // std::cout << "LOG: " << (q * log2(q) + (1 - q) * log2(1 - q)) << "\n";
     return (q * log2(q) + (1 - q) * log2(1 - q));
   }
