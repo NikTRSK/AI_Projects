@@ -36,8 +36,10 @@ bool DecisionTree::isLeafNode() { return isLeaf; }
 void DecisionTree::setDefault(const std::string & defaultValue) { __DEFAULT__ = new DecisionTree(defaultValue, true); }
 
 DecisionTree::~DecisionTree() {
-   for (auto kv: mNodes) {
-     if (kv.second != nullptr)
-       delete kv.second;
-   }
+  for (auto kv: mNodes) {
+    if (kv.second != nullptr)
+      delete kv.second;
+  }
+  if (__DEFAULT__ != nullptr)
+  delete __DEFAULT__;
 }

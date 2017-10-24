@@ -6,11 +6,7 @@
 #include <iterator>
 #include <iomanip>      // std::setfill, std::setw
 
-DecisionTreeLearner::~DecisionTreeLearner() {
-  delete mTree;
-  if (__DEFAULT__ != nullptr)
-    delete __DEFAULT__;
-}
+DecisionTreeLearner::~DecisionTreeLearner() { delete mTree; }
 
 void DecisionTreeLearner::trainTree(DataSet & examples) {
   DataSet parent;
@@ -49,13 +45,6 @@ void DecisionTreeLearner::trainTree(DataSet & examples) {
       // std::cout << "MaxCnt: " << correctCountValidate << ", " << (double)currMax / validataionSize *100 << "%" << std::endl;
     }
   } // end
-
-//  unsigned int depthBound = 10; int currMax = 0;
-//   mTree = buildTree(examples, examples.getHeader(), parent, depthBound, 0);
-//   currMax = validateTree(*mTree, examples.getDataSet());
-
-  // std::cout << "Tree Depth: " << currMax << "\n";
-  // std::cout << "Best: " << (double)currMax / validataionSize *100 << "%\n";
 }
 
 DecisionTree *DecisionTreeLearner::buildTree(const DataSet & examples,
