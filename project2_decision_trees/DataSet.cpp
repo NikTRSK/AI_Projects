@@ -1,5 +1,5 @@
 #include "DataSet.h"
-#include "StringUtils.hpp"
+#include "StringUtils.h"
 #include "Example.h"
 #include <iostream>
 #include <fstream>
@@ -18,99 +18,39 @@ DataSet::DataSet(const std::vector<std::string> & header, const std::vector<Exam
   mExamples = examples;
 }
 
-const unsigned int DataSet::size() const { return mExamples.size(); };
-
-bool DataSet::allExamplesAreSame() const {
-  auto targets = getTargets();
-  bool head = targets[0];
-  for (bool target : targets) {
-    if (target != head)
-      return false;
-  }
-  return true;
-}
-
-const std::unordered_set<std::string> DataSet::getAttributePossibities(const std::string & attributeName) const {
-  std::unordered_set<std::string> values;
-  for (auto value : getValuesForAttribute(attributeName)) {
-    values.insert(value);
-  }
-  return values;
-}
-
-const std::vector<std::string> & DataSet::getHeader() const {
-  return mHeader;
-}
-
-void DataSet::addExample(const Example & example) {
-  mExamples.push_back(example);
-}
-
-void DataSet::setHeader(const std::vector<std::string> & header) {
-  mHeader = header;
-}
-
-const std::vector<Example> & DataSet::getDataSet() const {
-  return mExamples;
-}
-
-std::vector<std::string> DataSet::getValuesForAttribute(const std::string & attributeName) const {
-  std::vector<std::string> col;
-  for (const Example & e : mExamples) {
-    col.push_back(e.getValue(attributeName));
-  }
-  return col;
-}
-
-DataSet DataSet::filterAttribute(const std::string & attributeName, const std::string & value) const {
-  DataSet newDataSet;
-  for (auto & e: mExamples) {
-    if (e.getValue(attributeName) == value) {
-      newDataSet.addExample(e);
-    }
-  }
-  return newDataSet;
-}
-
-std::vector<bool> DataSet::getTargets() const {
-  std::vector<bool> targets;
-  for (const Example & e : mExamples) {
-    targets.push_back(e.getTargetValue());
-  }
-  return targets;
-}
-
 void DataSet::loadDataSet(const char * inputFile) {
-  
     std::ifstream dataFile(inputFile);
     if (!dataFile.is_open())
     {
       std::cerr << "Cannot open data file.\n";
       return;
+      // TODO: Throw exception here
     }
   
     std::string row;
     // Get header
     std::getline(dataFile, row);
     mHeader = StringUtils::SplitString(row, ",");
-    // std::cout << "WTF|" << row << "\n";
-    // for (auto s : StringUtils::SplitString(row, ",")) std::cout << s << " | ";
-    // std::cout << "\n\n";
-    // std::cout << "!!!!!!!!!======== IN Load: \n";
-    // for (const auto & s : mHeader) std::cout << s << " | ";
-    // std::cout << "\n";
     // // Get all data
     while (std::getline(dataFile, row))
     {
       Example e(mHeader, StringUtils::SplitString(row, ","));
       mExamples.push_back(e);
     }
-	mHeader.erase(mHeader.begin());
+    // Remove the attribute for the label
+	  mHeader.erase(mHeader.begin());
     dataFile.close();
-    // std::cout << "!!!!!!!!!======== After IN Load: \n";
-    // for (const auto & s : mHeader) std::cout << s << " | ";
-    // std::cout << "\n";
     std::cout << "Data Loaded\n";
+  }
+
+  DataSet DataSet::filterAttribute(const std::string & attributeName, const std::string & value) const {
+    DataSet newDataSet;
+    for (auto & e: mExamples) {
+      if (e.getValue(attributeName) == value) {
+        newDataSet.addExample(e);
+      }
+    }
+    return newDataSet;
   }
 
   std::vector<DataSet> DataSet::splitData() {
@@ -121,7 +61,6 @@ void DataSet::loadDataSet(const char * inputFile) {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     // Shuffle data
     shuffle (mExamples.begin(), mExamples.end(), std::default_random_engine(seed));
-    /* SHOULD WE TAKE THE CEILING FOR TRAIN TEST */
   
     // Get Training Samples (60%)
     int trainSize = floor(mExamples.size()*0.6);
@@ -132,39 +71,84 @@ void DataSet::loadDataSet(const char * inputFile) {
     // Get Validation Samples (20%)
     int validationSize = floor(mExamples.size()*0.2);
     std::copy (mExamples.begin() + trainSize + testSize + 1, mExamples.begin() + trainSize + testSize + validationSize + 1, back_inserter(mValidation));
-//    std::cout << mExamples.size() << ", " << mTrain.size() + mTest.size() + mValidation.size() <<
-//                ", trainSize: " << mTrain.size() << ", testSize: " << mTest.size() << ", validSize: " << mValidation.size() << "\n";
 
-	DataSet train(mHeader, mTrain);
-	DataSet validation(mHeader, mValidation);
-	DataSet test(mHeader, mTest);
-	std::vector<DataSet> datasets = { train, validation, test };
-	return datasets;
+    DataSet train(mHeader, mTrain);
+    DataSet validation(mHeader, mValidation);
+    DataSet test(mHeader, mTest);
+    std::vector<DataSet> datasets = { train, validation, test };
+    return datasets;
   }
 
+  void DataSet::setHeader(const std::vector<std::string> & header) {
+    mHeader = header;
+  }
+  
+  void DataSet::addExample(const Example & example) {
+    mExamples.push_back(example);
+  }
+
+  std::vector<bool> DataSet::getTargets() const {
+    std::vector<bool> targets;
+    for (const Example & e : mExamples) {
+      targets.push_back(e.getTargetValue());
+    }
+    return targets;
+  }
+
+  const std::vector<std::string> & DataSet::getHeader() const {
+    return mHeader;
+  }
+
+  const std::vector<Example> & DataSet::getDataSet() const {
+    return mExamples;
+  }
+
+  const std::unordered_set<std::string> DataSet::getAttributePossibities(const std::string & attributeName) const {
+    std::unordered_set<std::string> values;
+    for (auto value : getValuesForAttribute(attributeName)) {
+      values.insert(value);
+    }
+    return values;
+  }
+
+  std::vector<std::string> DataSet::getValuesForAttribute(const std::string & attributeName) const {
+    std::vector<std::string> col;
+    for (const Example & e : mExamples) {
+      col.push_back(e.getValue(attributeName));
+    }
+    return col;
+  }
+
+  const bool DataSet::allExamplesAreSame() const {
+    auto targets = getTargets();
+    bool head = targets[0];
+    for (bool target : targets) {
+      if (target != head)
+        return false;
+    }
+    return true;
+  }
+
+  const unsigned int DataSet::size() const { return mExamples.size(); }
+
   std::string DataSet::maxGainAttribute(const std::vector<std::string> & attributes) const {
-    // for (const auto & a : attributes) std::cout << a << " | ";
-    // std::cout << "\n";
-    // Iterate over all the headers
+    // Iterate over all the headers and find the attribute that has the max gain
     double maxGain = -1;
     std::string maxAttrbiute;
     for (const auto & attribute : attributes) {
-      // std::cout << "Checking " << attribute << "\n";
       double gain = calculateAttributeGain(attribute);
-      //  std::cout << "==GAIN FOR:" << attribute << ": " << gain << "\n";
       if (gain > maxGain) {
         maxGain = gain;
         maxAttrbiute = attribute;
       }
     }
-
-    //  std::cout << "*** MaxAttribute: " << maxAttrbiute << ": " << maxGain << "\n";
+    
     return maxAttrbiute;
   }
 
   double DataSet::calculateAttributeGain(std::string attributeName) const {
-//    std::cout << "AName: " << attributeName << "\n";
     int exampleCount = mExamples.size();
+    // Count how many positive and negative examples are there
     // pair: pos, neg
     std::unordered_map<std::string, std::pair<int, int>> exampleCounts;
     std::vector<bool> targets = getTargets();
@@ -176,36 +160,27 @@ void DataSet::loadDataSet(const char * inputFile) {
         exampleCounts.insert({attributes[i], truthValues});
       }
       else {
-        if (targets[i]) {
+        if (targets[i])
           exampleCount->second.first++;
-        }
-        else {
+        else
           exampleCount->second.second++;
-        }
       }
     }
+    // Calculate Gain
     double remainder = 0.0;
-    // double localGain = 0.0;
     int totalPositive = 0;
     for (auto attributeCount : exampleCounts) {
-      // std::cout << attributeCount.first << ": " << attributeCount.second.first << ", " << 
-      // attributeCount.second.second << "\n";
       totalPositive += attributeCount.second.first;
       int countPosNeg = attributeCount.second.first + attributeCount.second.second;
       remainder += (countPosNeg / (double)exampleCount)
                   * calculateEnthropy(attributeCount.second.first, attributeCount.second.second);
-      // std::cout << "Gain: " << localGain << "\n";
-      // remainder += localGain;
     }
     double b = -Log2((double)totalPositive / exampleCount);
-    // std::cout << attributeName << ", TOTAL: " << exampleCount << ", B: " << b << ", rem: " << remainder << ", Total Gain: " << b - remainder << "\n";
     return b - remainder;
   }
 
   double DataSet::calculateEnthropy(int positiveExamples, int negativeExamples) const {
     double totalExamples = positiveExamples + negativeExamples;
-    // std::cout << "totalEx: " << totalExamples << ", p: " << positiveExamples << ", n: " << negativeExamples << "\n";
-
     double h = -Log2((double)positiveExamples / totalExamples);
     return h;
   }
@@ -213,4 +188,12 @@ void DataSet::loadDataSet(const char * inputFile) {
   double DataSet::Log2(double q) const {
     if (q == 0.0 || q == 1.0) return 0;
     return (q * log2(q) + (1 - q) * log2(1 - q));
+  }
+
+  DataSet DataSet::operator+(const DataSet& ds) {
+	  std::vector<Example> data = { this->getDataSet() };
+	  for (auto e : ds.getDataSet())
+		  data.push_back(e);
+
+    return DataSet(this->getHeader(), data);
   }

@@ -13,6 +13,7 @@ private:
 public:
   ~DecisionTreeLearner();
   void trainTree(DataSet & dataset);
+  void trainTree(DataSet & dataset, bool p1);
   DecisionTree *buildTree(const DataSet & examples, const std::vector<std::string> & attributes, const DataSet & parentExamples,
 						  unsigned int &depthBound, unsigned int currDepth);
   
@@ -21,10 +22,7 @@ public:
   DecisionTree getDecisionTree();
   std::string majorityVote(const DataSet & examples);
   std::vector<std::string> removeAttribute(const std::vector<std::string> &attributes, const std::string &toRemove);
-  // std::vector<std::vector<std::string>> splitData(std::vector<Example> & examples) const;
   int validateTree(DecisionTree & tree, const std::vector<Example> & examples);
-  void printTree(DecisionTree *tree);
-  void printTree();
 };
 
 #endif

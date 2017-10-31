@@ -1,6 +1,6 @@
 #include "Example.h"
 #include <iostream>
-#include "StringUtils.hpp"
+#include "StringUtils.h"
 
 Example::Example(std::vector<std::string> attributes, std::vector<std::string> exampleRow) {
  for (unsigned int i = 1; i < attributes.size(); ++i) {

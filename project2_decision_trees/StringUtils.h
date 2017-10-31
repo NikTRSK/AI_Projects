@@ -29,9 +29,6 @@ namespace StringUtils
 			position = found + 1;
 		}
 		tokens.push_back(input.substr(position));
-		// std::cout << "in string \n";
-		// for (int i = 0; i < tokens.size(); ++i) std::cout << tokens[i] << ", ";
-		// std:: cout << "\n";
 		return tokens;
 	}
 
@@ -179,15 +176,16 @@ namespace StringUtils
 	}
 
 	/* Format strings with equal spacing between tokens */
-	/* https://stackoverflow.com/questions/14765155/how-can-i-easily-format-my-data-table-in-c */
+	/* BASED ON: https://stackoverflow.com/questions/14765155/how-can-i-easily-format-my-data-table-in-c */
 	static inline std::string centerString(const std::string & s, const int w) {
 		std::stringstream ss, spaces;
-		int padding = w - s.size();                 // count excess room to pad
-		for(int i=0; i<padding/2; ++i)
-				spaces << " ";
-		ss << spaces.str() << s << spaces.str();    // format with padding
-		if(padding>0 && padding%2!=0)               // if odd #, add 1 space
-				ss << " ";
+		int padding = w - s.size();
+		for(int i = 0; i < padding / 2; ++i)
+			spaces << " ";
+		ss << spaces.str() << s << spaces.str();
+		// Add one extra space for odd paddings
+		if(padding > 0 && padding % 2 != 0)
+			ss << " ";
 		return ss.str();
 	}
 }

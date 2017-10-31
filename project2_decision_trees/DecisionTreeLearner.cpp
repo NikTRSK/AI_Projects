@@ -1,5 +1,5 @@
 #include "DecisionTreeLearner.h"
-#include "StringUtils.hpp"
+#include "StringUtils.h"
 #include <iostream>
 #include <math.h>
 #include <unordered_set>
@@ -10,47 +10,59 @@ DecisionTreeLearner::~DecisionTreeLearner() { delete mTree; }
 
 void DecisionTreeLearner::trainTree(DataSet & examples) {
   DataSet parent;
-//  std::cout << "!!!!!!!!!======== IN HEADER: \n";
-//  std::vector<std::string> h = examples.getHeader();
-//  for (std::string s : h) std::cout << s << " | ";
-//  std::cout << "\n ----etaeteataetaeteat\n";
-
   // Split data and find optimum depth
-  DecisionTree *currTree;
+  // DecisionTree *currTree;
   unsigned int currMax = 0;
-  std::cout << examples.size() << std::endl;
+  unsigned int optimumDepth = 0;
   std::cout << StringUtils::centerString("depth", 12)
             << StringUtils::centerString("train%", 12)
-            << StringUtils::centerString("valid%", 12) 
-            << StringUtils::centerString("test%", 12) << "\n";
-  // std::cout << std::setw(12) << std::setfill(' ') << "depth" << "train%" << "valid%\n";
-  for (unsigned int depthBound = 0; depthBound <= 15; ++depthBound) {
-  // for (unsigned int depthBound = ceil(examples.size()*0.6); depthBound >= 1; --depthBound) {
+            << StringUtils::centerString("valid%", 12) << "\n";
+            // << StringUtils::centerString("test%", 12) << "\n";
+  for (unsigned int depthBound = 1; depthBound <= 15; ++depthBound) {
     std::vector<DataSet> datasets = examples.splitData();
-    // validataionSize = datasets[1].size();
     // Train the tree
-    currTree = buildTree(datasets[0], datasets[0].getHeader(), parent, depthBound, 0);
+    mTree = buildTree(datasets[0], datasets[0].getHeader(), parent, depthBound, 0);
     // Check it against the validation set
-    // std::cout << "CurrDepth: " << depthBound << "\n";
-    unsigned int correctCountTrain = validateTree(*currTree, datasets[0].getDataSet());
-    unsigned int correctCountValidate = validateTree(*currTree, datasets[1].getDataSet());
-    unsigned int correctCountTest = validateTree(*currTree, datasets[2].getDataSet());
+    unsigned int correctCountTrain = validateTree(*mTree, datasets[0].getDataSet());
+    unsigned int correctCountValidate = validateTree(*mTree, datasets[1].getDataSet());
+    // unsigned int correctCountTest = validateTree(*mTree, datasets[2].getDataSet());
     std::cout << StringUtils::centerString(std::to_string(depthBound), 12)
               << StringUtils::centerString(std::to_string((double)correctCountTrain / datasets[0].size() * 100), 12)
-              << StringUtils::centerString(std::to_string((double)correctCountValidate / datasets[1].size() * 100), 12)
-              << StringUtils::centerString(std::to_string((double)correctCountTest / datasets[1].size() * 100), 12) << "\n";
+              << StringUtils::centerString(std::to_string((double)correctCountValidate / datasets[1].size() * 100), 12) << "\n";
     if (correctCountValidate > currMax) {
-      mTree = currTree;
+      // mTree = currTree;
       currMax = correctCountValidate;
-      // std::cout << "MaxCnt: " << correctCountValidate << ", " << (double)currMax / validataionSize *100 << "%" << std::endl;
+      optimumDepth = depthBound;
     }
+    delete mTree;
   } // end
+  // Build the tree with the ideal depth
+  std::vector<DataSet> datasets = examples.splitData();
+  DataSet training_validation = datasets[0] + datasets[1];
+  mTree = buildTree(training_validation, training_validation.getHeader(), parent, optimumDepth, 0);
+  unsigned int correctCountTest = validateTree(*mTree, datasets[2].getDataSet());
+  std::cout << "Test accuracy: " << (double)correctCountTest / datasets[2].size() * 100 << "%, at depth: " << optimumDepth << "\n";
+}
+
+void DecisionTreeLearner::trainTree(DataSet & examples, bool p1) {
+  DataSet parent;
+  std::vector<DataSet> datasets = examples.splitData();
+  DataSet training = datasets[0] + datasets[1];
+  unsigned int depth = 0;
+  mTree = buildTree(training, training.getHeader(), parent, depth, 0);
+  // Build the tree with the ideal depth
+  unsigned int correctCountTrain = validateTree(*mTree, training.getDataSet());
+  unsigned int correctCountTest = validateTree(*mTree, datasets[2].getDataSet());
+  std::cout << "Training accuracy: " << (double)correctCountTrain / training.size() * 100 << "%, Test accuracy: " << (double)correctCountTest / datasets[2].size() * 100 << "%\n";
 }
 
 DecisionTree *DecisionTreeLearner::buildTree(const DataSet & examples,
   const std::vector<std::string> & attributes, const DataSet & parentExamples,
 								unsigned int &depthBound, unsigned int currDepth) {
-  
+  // If depth bound reached. 0 signifies unbounded
+  if (depthBound != 0 && depthBound == currDepth) {
+    return new DecisionTree(majorityVote(examples), true);
+  }
   // If examples are empty then create a leaf node with the most common value
   if (examples.size() == 0) {
     return new DecisionTree(majorityVote(parentExamples), true);
@@ -65,20 +77,8 @@ DecisionTree *DecisionTreeLearner::buildTree(const DataSet & examples,
   if (attributes.size() == 0) {
     return new DecisionTree(majorityVote(examples), true);
   }
-  // If depth bound reached
- if (depthBound == currDepth) {
-	  return new DecisionTree(majorityVote(examples), true);
- }
-
-  // std::cout << "!!!!!!!!!======== IN DECISION: \n";
-  // for (const auto & s : attributes) std::cout << s << " | ";
-  // std::cout << "\n";
   std::string maxAttribute = examples.maxGainAttribute(attributes);
-  // addAttribute(maxAttribute);
-//  std::cout << "Max: " << maxAttribute << "\n";
-
   DecisionTree *tree = new DecisionTree(maxAttribute);
-  // std::string m = majorityVote(examples);
   // create a leaf node
   std::unordered_set<std::string> values = examples.getAttributePossibities(maxAttribute);
   for (auto value: values) {
@@ -87,7 +87,6 @@ DecisionTree *DecisionTreeLearner::buildTree(const DataSet & examples,
     DecisionTree *subTree = buildTree(filteredData, newAttributes, examples, depthBound, currDepth + 1);
     tree->addNode(value, subTree);
   }
-  // std::cout << "at d: " << currDepth << "\n";
   // Handle missing values
   std::string __OTHER__ = majorityVote(parentExamples);
   tree->setDefault(__OTHER__);
@@ -111,6 +110,23 @@ std::string DecisionTreeLearner::majorityVote(const DataSet & examples) {
     return "False";
 }
 
+
+
+std::string DecisionTreeLearner::predict(const Example & e) {
+  return predict(*mTree, e);
+}
+
+std::string DecisionTreeLearner::predict(DecisionTree & tree, const Example & e) {
+  if (tree.isLeafNode()) {
+    return tree.getName();
+  }
+
+  std::string name = tree.getName();
+  std::string exampleValue = e.getValue(name);
+  DecisionTree *child = tree.getNode(exampleValue);
+  return predict(*child, e);
+}
+
 std::vector<std::string> DecisionTreeLearner::removeAttribute(const std::vector<std::string> &attributes, const std::string &toRemove) {
   std::vector<std::string> newAttributes;
   for (const auto & a : attributes) {
@@ -120,50 +136,6 @@ std::vector<std::string> DecisionTreeLearner::removeAttribute(const std::vector<
   }
   return newAttributes;
 }
-
-std::string DecisionTreeLearner::predict(const Example & e) {
-  return predict(*mTree, e);
-}
-
-std::string DecisionTreeLearner::predict(DecisionTree & tree, const Example & e) {
-//  std::cout << "Checking: " << tree.getName() << "\n";
-  if (tree.isLeafNode()) {
-//    std::cout << "AT LEAF\n";
-    return tree.getName();
-  }
-
-  std::string name = tree.getName();
-  std::string exampleValue = e.getValue(name);
-  DecisionTree *child = tree.getNode(exampleValue);
-  if (child == NULL)
-	  std::cout << "NULL\n";
-  return predict(*child, e);
-}
-
-/* 0: train, 1: test, 2: validation */
-// std::vector<std::vector<std::string>> DecisionTreeLearner::splitData(std::vector<Example> & examples) const {
-//   std::vector<std::string> train;
-//   std::vector<std::string> test;
-//   std::vector<std::string> validation;
-
-//   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-//   // Shuffle data
-//   shuffle (examples.begin(), examples.end(), std::default_random_engine(seed));
-//   /* SHOULD WE TAKE THE CEILING FOR TRAIN TEST */
-
-//   // Get Training Samples (60%)
-//   int sampleSize = ceil(examples.size()*0.6);
-//   std::copy (examples.begin(), examples.begin() + sampleSize, back_inserter(train));
-//   // Get Testing Samples (20%)
-//   sampleSize = ceil(examples.size()*0.2);
-//   std::copy (examples.begin(), examples.begin() + sampleSize, back_inserter(test));
-//   // Get Validation Samples (20%)
-//   sampleSize = ceil(examples.size()*0.2);
-//   std::copy (examples.begin(), examples.begin() + sampleSize, back_inserter(validation));
-//   std::cout << examples.size() << ", " << train.size() + test.size() + validation.size() << "\n";
-//   std::vector<DataSet> out({train, test, validation});
-//   return out;
-// }
 
 int DecisionTreeLearner::validateTree(DecisionTree & tree, const std::vector<Example> & examples) {
   int correctCount = 0;
@@ -175,21 +147,4 @@ int DecisionTreeLearner::validateTree(DecisionTree & tree, const std::vector<Exa
       ++correctCount;
   }
   return correctCount;
-}
-
-void DecisionTreeLearner::printTree() { printTree(mTree); }
-
-void DecisionTreeLearner::printTree(DecisionTree *tree) {
-  std::cout << "Node: " << tree->getName() << "\n";
-  const auto & children = tree->getNodes();
-  if (children.size() != 0) {  
-    std::cout << "Children: ";
-    for (auto kv : children) std::cout << "\t" << kv.first << "\n";
-    std::cout << "\n";
-
-    for (auto kv : children) {
-      if (!kv.second->isLeafNode())
-        printTree(kv.second);
-    }
-  }
 }

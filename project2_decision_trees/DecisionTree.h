@@ -7,14 +7,15 @@
 
 class DecisionTree {
 public:
-  DecisionTree(std::string attributeName);
-  DecisionTree(std::string attributeName, bool leaf);
+  DecisionTree(const std::string & attributeName);
+  DecisionTree(const std::string & attributeName, bool leaf);
   ~DecisionTree();
-  void addNode(std::string value, DecisionTree * subTree);
+
+  void addNode(const std::string & value, DecisionTree * subTree);
   const std::unordered_map<std::string, DecisionTree*> & getNodes();
   const std::string & getName();
-  DecisionTree *getNode(const std::string &attributeName);
-  bool isLeafNode();
+  DecisionTree *getNode(const std::string & attributeName);
+  const bool isLeafNode();
   void setDefault(const std::string & defaultValue);
 
 private:
