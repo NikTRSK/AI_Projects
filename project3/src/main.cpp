@@ -6,6 +6,9 @@
 #include "bitmap.hpp"
 #include <sstream>
 #define MNIST_DATA_DIR "../mnist_data"
+
+#include "Naive_Bayes_Classifier.h"
+
 int main(int argc, char* argv[]) {
     //Read in the data set from the files
     mnist::MNIST_dataset<std::vector, std::vector<uint8_t>, uint8_t> dataset =
@@ -71,6 +74,12 @@ int main(int argc, char* argv[]) {
     ssTest << "../output/test" <<testImageToPrint<<"Label"<<static_cast<int>(testLabels[testImageToPrint])<<".bmp";
     Bitmap::writeBitmap(trainI, 28, 28, ssTrain.str(), false);
     Bitmap::writeBitmap(testI, 28, 28, ssTest.str(), false);
+
+    /* My stuff */
+    Naive_Bayes_Classifier nbc;
+    nbc.train();
+    /* My stuff */
+
     return 0;
 }
 
