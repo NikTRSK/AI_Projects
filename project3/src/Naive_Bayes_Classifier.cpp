@@ -37,28 +37,65 @@ void Naive_Bayes_Classifier::calculate_priori_probabilities(const std::vector<un
   std::cout << "Total Probability: " << total_probability << "\n";
 }
 
+// void Naive_Bayes_Classifier::calculate_conditional_probabilities(const std::vector<unsigned char> & labels, const std::vector<std::vector<unsigned char>> & images) {
+//   /* Outer index is the class and the inner is the feature
+//      Ex: probabilites[5][512] = P(F512 = 1 | c = 5) */
+//   auto digit_list = get_digit_list(labels);
+
+//   /* Calc all P(Fi | c) */
+//   for (unsigned int digit = 0; digit < digit_list.size(); ++digit) {
+//     int class_image_count = digit_list[digit].size();
+//     for (unsigned int f = 0; f < num_features; f++) {
+//       int num_white_pixels = 0;
+//       for (auto img_idx : digit_list[digit]) {
+//         // get value of pixel f (0 or 1) from training image
+//         int pixel_value = static_cast<int>(images[img_idx][f]);
+//         if (pixel_value == 1) ++num_white_pixels;
+//       }
+//       double fj_given_c = double(num_white_pixels + 1) / (class_image_count + 2); // also applies Laplace smoothing
+//       probabilities[digit].push_back(fj_given_c);
+//       // std::cout << "P (F = " << f << " | c = " << digit << ") = " << fj_given_c << "\n";
+//     }
+//   }
+// }
+
 void Naive_Bayes_Classifier::calculate_conditional_probabilities(const std::vector<unsigned char> & labels, const std::vector<std::vector<unsigned char>> & images) {
   /* Outer index is the class and the inner is the feature
      Ex: probabilites[5][512] = P(F512 = 1 | c = 5) */
   auto digit_list = get_digit_list(labels);
 
+  // std::cout << "===== TESTING: =====\n";
+  // for (unsigned int c = 0; c < digit_list.size(); ++c) {
+  //   std::cout << "Checking C = " << c << "\n";
+  //   for (unsigned int i = 0; i < digit_list[c].size(); ++i) {
+  //     int label_value = static_cast<int>(labels[digit_list[c][i]]);
+  //     if (label_value != c) std::cout << "Expected: " << c << ", Got: " << label_value << "\n";
+  //   }
+  // }
+
   /* Calc all P(Fi | c) */
-  for (unsigned int digit = 0; digit < digit_list.size(); ++digit) {
-    int class_image_count = digit_list[digit].size();
-    for (unsigned int f = 0; f < num_features; f++) {
-      int num_white_pixels = 0;
-      for (auto img_idx : digit_list[digit]) {
-        // get value of pixel f (0 or 1) from training image
-        int pixel_value = static_cast<int>(images[img_idx][f]);
-        if (pixel_value == 1) ++num_white_pixels;
+  for (unsigned int j = 0; j < num_features; ++j) {
+    for (unsigned int c = 0; c < num_classes; ++c) {
+      unsigned int num_white_pixels = 0;
+      unsigned int num_images_for_class = digit_list[c].size();
+      // std::cout << "Running for class: " << c << "\n";
+      for (unsigned int i = 0; i < digit_list[c].size(); ++i) {
+        unsigned int img_idx = digit_list[c][i];
+        int pixel_value = static_cast<int>(images[img_idx][j]);
+        if (pixel_value == 1) {
+          ++num_white_pixels;
+        }
       }
-      double fj_given_c = double(num_white_pixels + 1) / (class_image_count + 2); // also applies Laplace smoothing
-      probabilities[digit].push_back(fj_given_c);
-      // std::cout << "P (F = " << f << " | c = " << digit << ") = " << fj_given_c << "\n";
+      double fj_given_c = double(num_white_pixels + 1) / (num_images_for_class + 2);
+      probabilities[c].push_back(fj_given_c);
+      // std::cout << "Running for class: " << c << "\n";
+      // std::cout << "P (F = " << j << " | c = " << c << ") = " << fj_given_c << "\n";
     }
   }
+
 }
 
+/* Returns a list of lists of indexes where each digit occurs in the training set */
 std::vector<std::vector<int>> Naive_Bayes_Classifier::get_digit_list(const std::vector<unsigned char> & labels) {
   std::vector<std::vector<int>> digit_list(10);
 
@@ -89,36 +126,32 @@ void Naive_Bayes_Classifier::evaluate() {
   std::vector<unsigned char> test_labels = dataset.test_labels;
 
   /* P(c) = priori_probabilities[c] */
-  // std::vector<double> all_probabilities(num_classes);
-  /* Iterate over all test images */
   int correct_count = 0;
   for (unsigned int i = 0; i < test_images.size(); ++i) {
-    double max_probability = -1;
-    unsigned int max_class = -1;
+    std::vector<double> probs(10, 0);
     for (unsigned int c = 0; c < num_classes; ++c) {
       double fi_given_c = calculate_probability_product_for_image(test_images[i], c);
-      if (fi_given_c > max_probability) {
-        max_probability = fi_given_c;
-        max_class = c;
-      }
-      // all_probabilities[c] = fi_given_c;
+      probs[c] = fi_given_c;
     }
-    double probabily_image_c = max_probability;// + abs(log2(priori_probabilities[max_class]));
+    auto max = std::max_element(probs.begin(), probs.end());
+    auto max_class = std::distance(probs.begin(), max);
     int test_label = static_cast<int>(test_labels[i]);
     // std::cout << "Label: " << test_label << ", Prediction: " << max_class << "\n";
     if (max_class == test_label) {
       ++correct_count;
     }
   }
-  std::cout << "**** Accuracy: " << (double)correct_count / num_test_images * 100 << "\n";
-  // auto max_class = std::max(all_probabilities);
-  // Multiply by P(c)
+  std::cout << "Accuracy: " << (double)correct_count / num_test_images * 100 << "\n";
+}
+
+void Naive_Bayes_Classifier::evaluate_image(const std::vector<unsigned char> & image, const std::vector<unsigned char> & labels) {
+  // for (unsigned int c = 0;)
 }
 
 double Naive_Bayes_Classifier::calculate_probability_product_for_image(const std::vector<unsigned char> & image, unsigned int c) {
   /* Iterate over all the pixels for image and multiply probabilities that P(Fj = 1 | c) */
   double probability_sum = 0.0;
-  for (unsigned int j = 0; j < image.size(); ++j) {
+  for (unsigned int j = 0; j < image.size(); ++j) { //std::cout << "j: " << j << "\n";
     int pixel_value = static_cast<int>(image[j]);
     if (pixel_value == 1) {
       probability_sum += log2(probabilities[c][j]);
@@ -126,5 +159,5 @@ double Naive_Bayes_Classifier::calculate_probability_product_for_image(const std
       probability_sum += log2(1- probabilities[c][j]);
     }
   }
-  return abs(probability_sum) + abs(priori_probabilities[c]);
+  return probability_sum + log2(priori_probabilities[c]);
 }

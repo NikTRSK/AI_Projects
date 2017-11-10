@@ -15,6 +15,7 @@ public:
   std::vector<std::vector<int>> get_digit_list(const std::vector<unsigned char> & labels);
 
   void evaluate();
+  void evaluate_image(const std::vector<unsigned char> & image, const std::vector<unsigned char> & labels);
   double calculate_probability_product_for_image(const std::vector<unsigned char> & image, unsigned int c);
 private:
   const unsigned int num_training_images = 60000;
