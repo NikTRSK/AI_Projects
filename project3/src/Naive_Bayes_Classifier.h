@@ -15,8 +15,10 @@ public:
   std::vector<std::vector<int>> get_digit_list(const std::vector<unsigned char> & labels);
 
   void evaluate();
+  double calculate_probability_product_for_image(const std::vector<unsigned char> & image, unsigned int c);
 private:
   const unsigned int num_training_images = 60000;
+  const unsigned int num_test_images = 10000;
   const unsigned int num_features = 784;
   const unsigned int num_classes = 10;
 

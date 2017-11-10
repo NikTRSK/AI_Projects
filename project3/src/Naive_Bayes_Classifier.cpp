@@ -1,5 +1,6 @@
 #include "Naive_Bayes_Classifier.h"
-
+#include <algorithm>
+#include <cmath>
 // Extra
 #include <iostream>
 
@@ -25,36 +26,26 @@ void Naive_Bayes_Classifier::calculate_priori_probabilities(const std::vector<un
   
   double total_probability = 0.0;
   for (unsigned int digit = 0; digit < priori_probabilities.size(); ++digit) {
-    std::cout << "DIGIT: " << digit << " = " <<  priori_probabilities[digit] << "\n";
+    // std::cout << "DIGIT: " << digit << " = " <<  priori_probabilities[digit] << "\n";
     total_probability += priori_probabilities[digit];
   }
+  std::cout << "PRIORI PROBS:\n";
+  for (double d : priori_probabilities) {
+    std::cout << d << ", ";
+  }
+  std::cout << "\n";
   std::cout << "Total Probability: " << total_probability << "\n";
 }
 
 void Naive_Bayes_Classifier::calculate_conditional_probabilities(const std::vector<unsigned char> & labels, const std::vector<std::vector<unsigned char>> & images) {
   /* Outer index is the class and the inner is the feature
-     Ex: probabilites[5][512] = P(Fi = 512 | c = 5) */
-  // std::vector<std::vector<double>> probabilities(10);
+     Ex: probabilites[5][512] = P(F512 = 1 | c = 5) */
   auto digit_list = get_digit_list(labels);
-  
-  // {
-  //   /* print */
-  //   std::cout << "**** IMAGES ****:\n";
-  //   for (unsigned int i = 0; i < digit_list.size(); ++i) {
-  //     std::cout << "DIGIT: " << i << " | Size: " << digit_list[i].size() << " =====\n";
-  //     for (auto idx : digit_list[i]) std::cout << idx << ", ";
-  //     std::cout << "\n";
-  //   } 
-  // } // end
-
-  //There are 784 features (one per pixel in a 28x28 image)
-  // unsigned int num_features = 784;
 
   /* Calc all P(Fi | c) */
   for (unsigned int digit = 0; digit < digit_list.size(); ++digit) {
-    // std::cout << "*** P for " << i << "\n";
     int class_image_count = digit_list[digit].size();
-    for (unsigned int f = 0; f < num_features; f++) {    
+    for (unsigned int f = 0; f < num_features; f++) {
       int num_white_pixels = 0;
       for (auto img_idx : digit_list[digit]) {
         // get value of pixel f (0 or 1) from training image
@@ -63,7 +54,7 @@ void Naive_Bayes_Classifier::calculate_conditional_probabilities(const std::vect
       }
       double fj_given_c = double(num_white_pixels + 1) / (class_image_count + 2); // also applies Laplace smoothing
       probabilities[digit].push_back(fj_given_c);
-      std::cout << "P (F = " << f << " | c = " << digit << ") = " << fj_given_c << "\n";
+      // std::cout << "P (F = " << f << " | c = " << digit << ") = " << fj_given_c << "\n";
     }
   }
 }
@@ -96,4 +87,44 @@ void Naive_Bayes_Classifier::evaluate() {
   std::vector<std::vector<unsigned char>> test_images = dataset.test_images;
   // get test labels
   std::vector<unsigned char> test_labels = dataset.test_labels;
+
+  /* P(c) = priori_probabilities[c] */
+  // std::vector<double> all_probabilities(num_classes);
+  /* Iterate over all test images */
+  int correct_count = 0;
+  for (unsigned int i = 0; i < test_images.size(); ++i) {
+    double max_probability = -1;
+    unsigned int max_class = -1;
+    for (unsigned int c = 0; c < num_classes; ++c) {
+      double fi_given_c = calculate_probability_product_for_image(test_images[i], c);
+      if (fi_given_c > max_probability) {
+        max_probability = fi_given_c;
+        max_class = c;
+      }
+      // all_probabilities[c] = fi_given_c;
+    }
+    double probabily_image_c = max_probability;// + abs(log2(priori_probabilities[max_class]));
+    int test_label = static_cast<int>(test_labels[i]);
+    // std::cout << "Label: " << test_label << ", Prediction: " << max_class << "\n";
+    if (max_class == test_label) {
+      ++correct_count;
+    }
+  }
+  std::cout << "**** Accuracy: " << (double)correct_count / num_test_images * 100 << "\n";
+  // auto max_class = std::max(all_probabilities);
+  // Multiply by P(c)
+}
+
+double Naive_Bayes_Classifier::calculate_probability_product_for_image(const std::vector<unsigned char> & image, unsigned int c) {
+  /* Iterate over all the pixels for image and multiply probabilities that P(Fj = 1 | c) */
+  double probability_sum = 0.0;
+  for (unsigned int j = 0; j < image.size(); ++j) {
+    int pixel_value = static_cast<int>(image[j]);
+    if (pixel_value == 1) {
+      probability_sum += log2(probabilities[c][j]);
+    } else {
+      probability_sum += log2(1- probabilities[c][j]);
+    }
+  }
+  return abs(probability_sum) + abs(priori_probabilities[c]);
 }

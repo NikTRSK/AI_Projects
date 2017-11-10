@@ -78,6 +78,7 @@ int main(int argc, char* argv[]) {
     /* My stuff */
     Naive_Bayes_Classifier nbc;
     nbc.train();
+    nbc.evaluate();
     /* My stuff */
 
     return 0;
