@@ -128,6 +128,9 @@ void Naive_Bayes_Classifier::evaluate() {
   std::vector<std::vector<unsigned char>> test_images = dataset.test_images;
   // get test labels
   std::vector<unsigned char> test_labels = dataset.test_labels;
+  
+  std::vector<std::vector<int>> classifications(10, std::vector<int>(10, 0));
+  // for (auto v : classifications) v = std::vector<int>(10, 0);
 
   /* P(c) = priori_probabilities[c] */
   int correct_count = 0;
@@ -144,8 +147,19 @@ void Naive_Bayes_Classifier::evaluate() {
     if (max_class == test_label) {
       ++correct_count;
     }
+    ++classifications[test_label][max_class];
   }
-  std::cout << "Accuracy: " << (double)correct_count / num_test_images * 100 << "\n";
+  
+  std::ofstream summary;
+  summary.open("../output/classification-summary.txt");
+  for (unsigned int r = 0; r < num_classes; ++r) {
+    for (unsigned int c = 0; c < num_classes; ++c) {
+      summary << std::setw(7) << std::left << classifications[r][c];
+    }
+    summary << "\n";
+  }
+  summary << (double)correct_count / num_test_images * 100 << "%";
+  summary.close();
 }
 
 void Naive_Bayes_Classifier::generate_output_images() {
