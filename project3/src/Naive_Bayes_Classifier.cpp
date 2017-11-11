@@ -1,6 +1,8 @@
 #include "Naive_Bayes_Classifier.h"
 #include <algorithm>
 #include <cmath>
+#include <sstream>
+#include "bitmap.hpp"
 // Extra
 #include <iostream>
 
@@ -128,7 +130,7 @@ void Naive_Bayes_Classifier::evaluate() {
   /* P(c) = priori_probabilities[c] */
   int correct_count = 0;
   for (unsigned int i = 0; i < test_images.size(); ++i) {
-    std::vector<double> probs(10, 0);
+    std::vector<double> probs(num_classes, 0);
     for (unsigned int c = 0; c < num_classes; ++c) {
       double fi_given_c = calculate_probability_product_for_image(test_images[i], c);
       probs[c] = fi_given_c;
@@ -144,14 +146,24 @@ void Naive_Bayes_Classifier::evaluate() {
   std::cout << "Accuracy: " << (double)correct_count / num_test_images * 100 << "\n";
 }
 
-void Naive_Bayes_Classifier::evaluate_image(const std::vector<unsigned char> & image, const std::vector<unsigned char> & labels) {
-  // for (unsigned int c = 0;)
+void Naive_Bayes_Classifier::generate_output_images() {
+  for (unsigned int c = 0; c < num_classes; ++c) {
+    std::vector<unsigned char> class_features(num_features);
+    for (unsigned int f = 0; f < num_features; ++f) {
+      double p = probabilities[c][f];
+      uint8_t v = 255 * p;
+      class_features[f] = (unsigned char)v;
+    }
+    std::stringstream ss;
+    ss << "../output/digit" << c << ".bmp";
+    Bitmap::writeBitmap(class_features, 28, 28, ss.str(), false);
+  }
 }
 
 double Naive_Bayes_Classifier::calculate_probability_product_for_image(const std::vector<unsigned char> & image, unsigned int c) {
   /* Iterate over all the pixels for image and multiply probabilities that P(Fj = 1 | c) */
   double probability_sum = 0.0;
-  for (unsigned int j = 0; j < image.size(); ++j) { //std::cout << "j: " << j << "\n";
+  for (unsigned int j = 0; j < image.size(); ++j) {
     int pixel_value = static_cast<int>(image[j]);
     if (pixel_value == 1) {
       probability_sum += log2(probabilities[c][j]);
