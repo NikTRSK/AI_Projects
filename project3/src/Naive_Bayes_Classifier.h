@@ -17,6 +17,7 @@ public:
   void evaluate();
   void generate_output_images();
   double calculate_probability_product_for_image(const std::vector<unsigned char> & image, unsigned int c);
+  void output_network();
 private:
   const unsigned int num_training_images = 60000;
   const unsigned int num_test_images = 10000;

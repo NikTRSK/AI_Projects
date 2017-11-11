@@ -10,7 +10,7 @@
 #include "Naive_Bayes_Classifier.h"
 
 int main(int argc, char* argv[]) {
-    //Read in the data set from the files
+/*     //Read in the data set from the files
     mnist::MNIST_dataset<std::vector, std::vector<uint8_t>, uint8_t> dataset =
     mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>(MNIST_DATA_DIR);
     //Binarize the data set (so that pixels have values of either 0 or 1)
@@ -73,13 +73,14 @@ int main(int argc, char* argv[]) {
     ssTrain << "../output/train" <<trainImageToPrint<<"Label"<<static_cast<int>(trainLabels[trainImageToPrint])<<".bmp";
     ssTest << "../output/test" <<testImageToPrint<<"Label"<<static_cast<int>(testLabels[testImageToPrint])<<".bmp";
     Bitmap::writeBitmap(trainI, 28, 28, ssTrain.str(), false);
-    Bitmap::writeBitmap(testI, 28, 28, ssTest.str(), false);
+    Bitmap::writeBitmap(testI, 28, 28, ssTest.str(), false); */
 
     /* My stuff */
     Naive_Bayes_Classifier nbc;
     nbc.train();
     nbc.evaluate();
     nbc.generate_output_images();
+    nbc.output_network();
     /* My stuff */
 
     return 0;

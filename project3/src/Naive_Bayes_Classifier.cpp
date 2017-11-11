@@ -3,6 +3,8 @@
 #include <cmath>
 #include <sstream>
 #include "bitmap.hpp"
+#include <fstream>
+#include <iomanip>
 // Extra
 #include <iostream>
 
@@ -172,4 +174,24 @@ double Naive_Bayes_Classifier::calculate_probability_product_for_image(const std
     }
   }
   return probability_sum + log2(priori_probabilities[c]);
+}
+
+void Naive_Bayes_Classifier::output_network() {
+  std::ofstream output;
+  output << std::setprecision (6) << std::fixed;
+  output.open("../output/network.txt");
+  for (unsigned int c = 0; c < num_classes; ++c) {
+    for (unsigned int f = 0; f < num_features; ++f) {
+      output << probabilities[c][f];
+      if (f < num_features - 1) output << ", ";
+    }
+    output << "\n";
+  }
+
+  for (unsigned int c = 0; c < num_classes; ++c) {
+    output << priori_probabilities[c];
+    if (c < num_classes - 1) output << "\n";
+  }
+
+  output.close();
 }
