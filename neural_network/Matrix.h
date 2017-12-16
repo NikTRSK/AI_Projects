@@ -28,14 +28,15 @@ public:
   Matrix applyFunction(double (*function)(double)) const;
   /* print of the matrix */
   void print(std::ostream &flux) const;
+  std::vector<std::vector<double> > get_vector_matrix();
 
 private:
   std::vector<std::vector<double> > mArray;
-  int mHeight;
-  int mWidth;
-
-  /* print matrix to terminal using cout */
-  std::ostream &operator(std::ostream flux, Matrix const &matrix);
+  unsigned int mHeight;
+  unsigned int mWidth;
 };
+
+/* print matrix to terminal using cout */
+std::ostream& operator<<(std::ostream &os, const Matrix &matrix);
 
 #endif
