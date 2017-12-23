@@ -1,15 +1,12 @@
 #include "Matrix.h"
-// #include "Test.h"
+#include "Dataset.h"
+#include "NeuralNetwork.h"
 
 int main()
 {
-  std::vector<std::vector<double> > m1_vals = {
-    {7.5, 8.0, 9.0},
-    {10.0, 11.0, 12.0}
-  };
+  Dataset ds("minst_training.txt");
+  NeuralNetwork nn;
 
-  Matrix m1(m1_vals);
-  std::cout << m1;
-  
+  nn.train(ds);
   return 0;
 }

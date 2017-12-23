@@ -1,6 +1,7 @@
 #include "Matrix.h"
 #include <assert.h>
 #include <sstream>
+#include <iomanip>
 
 Matrix::Matrix() {}
 
@@ -127,7 +128,7 @@ Matrix Matrix::applyFunction(double (*function)(double)) const
 /* print of the matrix */
 void Matrix::print(std::ostream &os) const
 {
-  // Get the max padding needed for each digit
+/*   // Get the max padding needed for each digit
   unsigned int max_width = 0;
   std::stringstream ss;
   std::string s;
@@ -146,7 +147,58 @@ void Matrix::print(std::ostream &os) const
       ss.str("");  
       ss << mArray[i][j];
       s = ss.str();
-      os << s << std::string (max_width - s.size() + 3, ' ');;
+      os << s << std::string (max_width - s.size() + 1, ' ');;
+    }
+    os << std::endl;
+  } */
+/*   unsigned int i,j;
+  // const unsigned int mw = mWidth;
+  int maxLength[mWidth];
+  maxLength[mWidth] = {};
+  std::stringstream ss;
+
+  for (i=0 ; i<mHeight ; i++)
+  {
+      for (j=0 ; j<mWidth ; j++)
+      {
+          ss << mArray[i][j];
+          if(maxLength[j] < ss.str().size())
+          {
+              maxLength[j] = ss.str().size();
+          }
+          ss.str(std::string());
+      }
+  }
+
+  for (i=0 ; i<mHeight ; i++)
+  {
+      for (j=0 ; j<mWidth ; j++)
+      {
+          os << mArray[i][j];
+          ss << mArray[i][j];
+          for (int k=0 ; k<maxLength[j]-ss.str().size()+1 ; k++)
+          {
+              os << " ";
+          }
+          ss.str(std::string());
+      }
+      os << std::endl;
+  } */
+  std::stringstream ss;
+  unsigned int padding = 0;
+  for (unsigned int i = 0; i < mArray.size(); ++i) {
+    for (unsigned int j = 0; j < mArray[i].size(); ++j) {
+      ss << mArray[i][j];
+      // Find maximum size of an item
+      if (ss.str().size() > padding)
+        padding = ss.str().size();
+      ss.str(""); // Reset string stream
+    }
+  }
+
+  for (unsigned int i = 0; i < mArray.size(); ++i) {
+    for (unsigned int j = 0; j < mArray[i].size(); ++j) {
+      os << std::setw(padding + 1) << mArray[i][j] << "  ";
     }
     os << std::endl;
   }
